@@ -1,0 +1,492 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Manu en clase</title>
+<meta name="description" content="Pictogramas gratis para el aula: crea tarjetas, frases y juegos con pictos de ARASAAC.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;500;700&display=swap">
+<style>
+/* Layout: web a sangre estilo deportivo — hero oscuro a pantalla, bandas de color alternas, rejillas de tiles grandes */
+:root{
+  --noche:#121733; --marino:#13285e; --arandano:#2f3356; --rey:#0a24b5; --azur:#0063ff;
+  --turquesa:#33c6d4; --maya:#7ec8ff; --aguamarina:#a8e4ec; --menta:#b0f0c8; --bigaro:#c4c3f2;
+  --blanco:#ffffff; --tinta:#0b0f24; --gris:#aab3d6;
+  --display:"Barlow Condensed","Arial Narrow",Impact,sans-serif;
+  --body:"Barlow",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion:reduce){html{scroll-behavior:auto}*{animation:none!important;transition:none!important}}
+body{margin:0;background:var(--noche);color:var(--blanco);font-family:var(--body);font-size:17px;line-height:1.55}
+img{max-width:100%}
+.in{max-width:1240px;margin:0 auto;padding-left:max(20px,env(safe-area-inset-left,0px));padding-right:max(20px,env(safe-area-inset-right,0px))}
+a{color:inherit}
+:focus-visible{outline:3px solid var(--turquesa);outline-offset:3px}
+
+/* NAV */
+nav.top{position:sticky;top:0;z-index:20;background:rgba(18,23,51,.92);backdrop-filter:blur(10px);border-bottom:1px solid rgba(255,255,255,.08)}
+nav.top .in{display:flex;align-items:center;justify-content:space-between;gap:16px;min-height:64px}
+.logo{font-family:var(--display);font-weight:800;font-style:italic;font-size:1.6rem;letter-spacing:.02em;text-transform:uppercase;text-decoration:none;display:flex;align-items:center;gap:10px}
+.logo i{display:inline-block;width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--azur),var(--turquesa));transform:skewX(-10deg)}
+.links{display:flex;gap:22px;font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:1rem}
+.links a{text-decoration:none;opacity:.85}.links a:hover{opacity:1;color:var(--turquesa)}
+@media (max-width:720px){.links{display:none}}
+
+/* HERO */
+.hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 85% 10%,var(--rey) 0%,var(--marino) 40%,var(--noche) 75%)}
+.hero .in{display:grid;grid-template-columns:1.1fr 1fr;gap:40px;align-items:center;padding-block:72px 88px}
+@media (max-width:900px){.hero .in{grid-template-columns:1fr;padding-block:48px 56px}}
+.eyebrow{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.2em;color:var(--turquesa);font-size:.95rem;margin:0 0 12px}
+h1{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:clamp(3.4rem,10vw,7.5rem);line-height:.88;margin:0;letter-spacing:-.01em;text-wrap:balance}
+h1 span{color:var(--maya)}
+.lead{font-size:1.2rem;max-width:34ch;color:var(--aguamarina);margin:22px 0 30px}
+.ctas{display:flex;flex-wrap:wrap;gap:12px}
+.btn{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:1.1rem;border:0;border-radius:4px;padding:14px 26px;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:8px;transition:transform .15s,background .15s}
+.btn:hover{transform:translateY(-2px)}
+.btn.pri{background:var(--azur);color:#fff}.btn.pri:hover{background:#1a74ff}
+.btn.sec{background:transparent;color:#fff;box-shadow:inset 0 0 0 2px rgba(255,255,255,.6)}.btn.sec:hover{box-shadow:inset 0 0 0 2px #fff}
+.btn.lt{background:var(--blanco);color:var(--tinta)}
+.btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.mosaic{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;transform:rotate(-4deg)}
+.mosaic div{aspect-ratio:1;border-radius:6px;display:grid;place-items:center;padding:14%;box-shadow:0 18px 40px rgba(0,0,0,.35)}
+.mosaic div img{width:100%;height:100%;object-fit:contain;background:#fff;border-radius:4px;padding:8%}
+.mosaic div:nth-child(1){background:#f7d046}.mosaic div:nth-child(2){background:#7ed957;transform:translateY(22px)}.mosaic div:nth-child(3){background:#ff9f43}
+.mosaic div:nth-child(4){background:#5aa8e0;transform:translateY(-10px)}.mosaic div:nth-child(5){background:#f78fb3;transform:translateY(12px)}.mosaic div:nth-child(6){background:var(--bigaro)}
+@media (max-width:900px){.mosaic{max-width:420px;transform:rotate(-3deg)}}
+
+/* STRIP */
+.strip{background:var(--azur);overflow:hidden;white-space:nowrap}
+.strip p{margin:0;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:1.6rem;padding:10px 0;display:inline-block;animation:run 30s linear infinite}
+@keyframes run{to{transform:translateX(-50%)}}
+
+/* SECTIONS */
+section.band{padding-block:80px}
+section.band.light{background:#eef4fb;color:var(--tinta)}
+section.band.deep{background:var(--marino)}
+h2{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:clamp(2.4rem,6vw,4.4rem);line-height:.92;margin:0 0 14px;text-wrap:balance}
+.sub{max-width:60ch;margin:0 0 36px;font-size:1.1rem}
+.light .sub{color:#3b4670}.light .eyebrow{color:var(--rey)}
+
+/* TOOL */
+.tool{display:grid;grid-template-columns:1.2fr 1fr;gap:32px;align-items:start}
+@media (max-width:960px){.tool{grid-template-columns:1fr}}
+.panel{background:#fff;border-radius:8px;padding:24px;box-shadow:0 10px 30px rgba(10,20,60,.08);display:flex;flex-direction:column;gap:22px;min-width:0}
+.step{display:flex;flex-direction:column;gap:10px}
+.step>label,.step .lab{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:1.05rem;color:var(--rey)}
+.step .lab b{display:inline-grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--rey);color:#fff;margin-right:8px;font-size:.9rem}
+.row{display:flex;gap:10px;flex-wrap:wrap}
+input[type=text],input[type=number],select{font:inherit;font-size:1.05rem;padding:12px 14px;border:2px solid #cbd6ea;border-radius:6px;background:#fff;color:var(--tinta);min-width:0}
+input[type=text]{flex:1 1 220px}
+input:focus,select:focus{border-color:var(--azur);outline:none}
+.results{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:10px;min-height:20px}
+.res{appearance:none;border:3px solid transparent;background:#f3f6fc;border-radius:8px;padding:6px;cursor:pointer;aspect-ratio:1;display:grid;place-items:center}
+.res img{width:100%;height:100%;object-fit:contain}
+.res:hover{border-color:var(--maya)}
+.res.on{border-color:var(--azur);background:#e2edff}
+.note{font-size:.92rem;color:#56618a}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chip{appearance:none;font:inherit;font-weight:700;font-size:.9rem;border:2px solid #cbd6ea;border-radius:999px;padding:7px 14px 7px 8px;cursor:pointer;background:#fff;color:var(--tinta);display:flex;align-items:center;gap:8px}
+.chip i{width:20px;height:20px;border-radius:50%;border:2px solid var(--tinta)}
+.chip.on{border-color:var(--tinta);background:var(--tinta);color:#fff}
+.chip.on i{border-color:#fff}
+.chip small{font-weight:500;opacity:.7}
+.colorpick{width:44px;height:38px;border:2px solid #cbd6ea;border-radius:8px;padding:2px;background:#fff;cursor:pointer}
+.preview{position:sticky;top:84px;display:flex;flex-direction:column;gap:14px;align-items:stretch;min-width:0}
+.stage{background:var(--noche);border-radius:8px;padding:28px;display:grid;place-items:center;min-height:320px}
+.stage canvas{width:100%;max-width:340px;height:auto;display:block;background:#fff}
+.meta{font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#56618a;text-align:center}
+.actions{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.actions .btn{justify-content:center}
+.actions .full{grid-column:1/-1}
+.copies{display:flex;align-items:center;gap:10px;justify-content:center;font-weight:600;color:#3b4670}
+.copies input{width:80px}
+
+/* FRASE */
+.frase-wrap{background:#fff;border-radius:8px;padding:24px;color:var(--tinta)}
+.frase{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px;min-height:150px;align-items:flex-start}
+.fitem{flex:0 0 150px;display:flex;flex-direction:column;gap:6px;align-items:center}
+.fitem canvas{width:150px;height:150px;display:block}
+.fitem .ctl{display:flex;gap:4px}
+.fitem .ctl button{appearance:none;border:2px solid #cbd6ea;background:#fff;border-radius:6px;width:36px;height:32px;cursor:pointer;font-weight:700;color:var(--tinta)}
+.fitem .ctl button:hover{border-color:var(--azur)}
+.empty{color:#56618a;padding:30px 10px;font-size:1.05rem}
+.frase-bar{display:flex;flex-wrap:wrap;gap:12px;align-items:center;justify-content:space-between;border-top:1px solid #e3e9f5;padding-top:16px}
+.frase-bar .row{align-items:center}
+
+/* GAME */
+.game{background:var(--noche);border-radius:10px;padding:clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:22px}
+.ghead{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+.score{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.06em;font-size:1.2rem;color:var(--aguamarina)}
+.score b{color:#fff;font-size:1.6rem;font-variant-numeric:tabular-nums}
+.gstage{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,3fr);gap:28px;align-items:center}
+@media (max-width:820px){.gstage{grid-template-columns:1fr}}
+.gword{display:flex;flex-direction:column;align-items:center;gap:14px;min-width:0}
+.gword-box{width:100%;overflow:hidden}
+.gword-text{font-family:var(--body);font-weight:700;font-size:56px;letter-spacing:.04em;text-align:center;white-space:nowrap;line-height:1.1}
+.grow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:14px}
+@media (max-width:560px){.grow{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.gcard{appearance:none;font:inherit;color:var(--tinta);background:#fff;border:4px solid #fff;border-radius:10px;padding:8px;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:4px;transition:transform .15s,opacity .2s;position:relative}
+.gcard:hover{transform:translateY(-4px)}
+.gcard .pic{width:100%;aspect-ratio:1;display:grid;place-items:center;padding:6%}
+.gcard img{width:100%;height:100%;object-fit:contain}
+.gcard .lbl{font-weight:700;font-size:.9rem;min-height:1.2em}
+.gcard.ok{border-color:#2ecc71;transform:scale(1.06)}
+.gcard.ok::after{content:"✓";position:absolute;top:-14px;right:-14px;width:40px;height:40px;border-radius:50%;background:#2ecc71;color:#fff;font-weight:800;font-size:1.4rem;display:grid;place-items:center}
+.gcard.no{opacity:.3;animation:shake .4s}
+.gcard.hint{border-color:#f7d046;box-shadow:0 0 0 6px #f7d046;animation:pulse 1s infinite}
+@keyframes shake{25%{transform:translateX(-8px)}50%{transform:translateX(8px)}75%{transform:translateX(-5px)}}
+@keyframes pulse{50%{box-shadow:0 0 0 12px #f7d046}}
+.gmsg{min-height:1.6em;font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:1.8rem;text-align:center;margin:0}
+.gmsg.good{color:var(--menta)}.gmsg.try{color:#ff8a80}
+.gopts{display:flex;flex-wrap:wrap;gap:12px 24px;align-items:center;border-top:1px solid rgba(255,255,255,.12);padding-top:16px;font-size:.95rem}
+.gopts label{display:flex;gap:8px;align-items:center;cursor:pointer}
+.gopts input{width:20px;height:20px;accent-color:var(--azur)}
+.gopts select{padding:8px 10px;font-size:.95rem}
+
+/* TILES */
+.tiles{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px}
+@media (max-width:820px){.tiles{grid-template-columns:1fr}}
+.tile{border-radius:8px;padding:28px;min-height:220px;display:flex;flex-direction:column;justify-content:space-between;gap:20px;text-decoration:none;position:relative;overflow:hidden}
+.tile h3{font-family:var(--display);font-weight:800;font-style:italic;text-transform:uppercase;font-size:2.2rem;line-height:.95;margin:0}
+.tile p{margin:0}
+.tile .go{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.08em}
+.t1{background:var(--azur);color:#fff}.t2{background:var(--turquesa);color:var(--tinta)}.t3{background:var(--bigaro);color:var(--tinta)}
+
+/* FOOTER */
+footer{background:#080b1d;padding-block:48px;color:var(--gris);font-size:.95rem}
+footer .in{display:grid;grid-template-columns:1fr 1.4fr;gap:32px}
+@media (max-width:820px){footer .in{grid-template-columns:1fr}}
+footer h4{font-family:var(--display);font-weight:800;text-transform:uppercase;letter-spacing:.08em;color:#fff;margin:0 0 10px;font-size:1.1rem}
+footer p{margin:0 0 8px}
+.toast{position:fixed;left:50%;bottom:calc(24px + env(safe-area-inset-bottom,0px));transform:translateX(-50%) translateY(140%);background:var(--tinta);color:#fff;padding:12px 20px;border-radius:6px;font-weight:600;transition:transform .25s,visibility .25s;z-index:50;max-width:90vw;visibility:hidden}
+.toast.show{transform:translateX(-50%) translateY(0);visibility:visible}
+.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+</style>
+</head>
+<body>
+
+<nav class="top"><div class="in">
+  <a class="logo" href="#inicio"><i></i>Manu en clase</a>
+  <div class="links"><a href="#tarjetas">Tarjetas</a><a href="#frases">Frases</a><a href="#juego">Juego</a><a href="#licencia">Licencia</a></div>
+</div></nav>
+
+<header class="hero" id="inicio"><div class="in">
+  <div>
+    <p class="eyebrow">Pictogramas para el aula · Gratis</p>
+    <h1>Manu<br>en <span>clase</span></h1>
+    <p class="lead">Crea tarjetas, frases y juegos con pictogramas en un minuto. Listo para imprimir, plastificar y usar.</p>
+    <div class="ctas">
+      <a class="btn pri" href="#tarjetas">Crear tarjeta</a>
+      <a class="btn sec" href="#juego">Jugar</a>
+    </div>
+  </div>
+  <div class="mosaic" aria-hidden="true">
+    <div><img alt="" src="https://static.arasaac.org/pictograms/2497/2497_300.png"></div>
+    <div><img alt="" src="https://static.arasaac.org/pictograms/6456/6456_300.png"></div>
+    <div><img alt="" src="https://static.arasaac.org/pictograms/2440/2440_300.png"></div>
+    <div><img alt="" src="https://static.arasaac.org/pictograms/2263/2263_300.png"></div>
+    <div><img alt="" src="https://static.arasaac.org/pictograms/12252/12252_300.png"></div>
+    <div><img alt="" src="https://static.arasaac.org/pictograms/6454/6454_300.png"></div>
+  </div>
+</div></header>
+
+<div class="strip" aria-hidden="true"><p>Tarjetas · Frases · Juegos · Imprimir · Plastificar · Comunicar · Tarjetas · Frases · Juegos · Imprimir · Plastificar · Comunicar ·&nbsp;Tarjetas · Frases · Juegos · Imprimir · Plastificar · Comunicar · Tarjetas · Frases · Juegos · Imprimir · Plastificar · Comunicar ·&nbsp;</p></div>
+
+<section class="band light" id="tarjetas"><div class="in">
+  <p class="eyebrow">Herramienta 1</p>
+  <h2>Crea tu tarjeta</h2>
+  <p class="sub">Busca la palabra, elige el dibujo, el color del marco y el tamaño. Descárgala en PDF para imprimir o en PNG para tus paneles.</p>
+
+  <div class="tool">
+    <div class="panel">
+      <div class="step">
+        <label for="q"><span class="lab"><b>1</b></span>Busca la palabra</label>
+        <form class="row" id="sform">
+          <input type="text" id="q" placeholder="Ej.: comer, mesa, padre…" autocomplete="off" value="comer">
+          <button class="btn pri" type="submit">Buscar</button>
+        </form>
+        <div class="results" id="results" aria-live="polite"></div>
+        <p class="note" id="snote"></p>
+      </div>
+
+      <div class="step">
+        <label for="label"><span class="lab"><b>2</b></span>Texto de la tarjeta</label>
+        <div class="row">
+          <input type="text" id="label" value="COMER" maxlength="30">
+          <select id="pos" aria-label="Posición del texto"><option value="bottom">Texto abajo</option><option value="top">Texto arriba</option><option value="none">Sin texto</option></select>
+        </div>
+      </div>
+
+      <div class="step">
+        <span class="lab"><b>3</b>Color del marco</span>
+        <div class="chips" id="colors"></div>
+        <div class="row" style="align-items:center"><input class="colorpick" type="color" id="custom" value="#5aa8e0" aria-label="Otro color"><span class="note">Otro color</span></div>
+      </div>
+
+      <div class="step">
+        <span class="lab"><b>4</b>Tamaño</span>
+        <div class="chips" id="sizes"></div>
+      </div>
+    </div>
+
+    <div class="preview">
+      <div class="stage"><canvas id="cv" width="600" height="600" aria-label="Vista previa de la tarjeta"></canvas></div>
+      <p class="meta" id="meta"></p>
+      <div class="copies"><label for="copies">Copias en el PDF</label><input type="number" id="copies" min="1" max="60" value="1"></div>
+      <div class="actions">
+        <button class="btn pri" id="pdf" type="button">Descargar PDF</button>
+        <button class="btn lt" id="png" type="button" style="box-shadow:inset 0 0 0 2px var(--tinta)">Descargar PNG</button>
+        <button class="btn sec full" id="add" type="button" style="color:var(--rey);box-shadow:inset 0 0 0 2px var(--rey)">+ Añadir a la frase</button>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section class="band deep" id="frases"><div class="in">
+  <p class="eyebrow">Herramienta 2</p>
+  <h2>Monta una frase</h2>
+  <p class="sub" style="color:var(--aguamarina)">Crea cada tarjeta arriba y pulsa «Añadir a la frase». Ordénalas aquí y descarga la tira en un A4 horizontal.</p>
+  <div class="frase-wrap">
+    <div class="frase" id="frase"></div>
+    <div class="frase-bar">
+      <span class="note" id="fnote"></span>
+      <div class="row">
+        <button class="btn sec" id="fclear" type="button" style="color:var(--tinta);box-shadow:inset 0 0 0 2px #cbd6ea">Vaciar</button>
+        <button class="btn pri" id="fpdf" type="button">Descargar frase</button>
+      </div>
+    </div>
+  </div>
+</div></section>
+
+<section class="band" id="juego"><div class="in">
+  <p class="eyebrow">Juego</p>
+  <h2>Busca el material</h2>
+  <p class="sub" style="color:var(--aguamarina)">Lee la palabra y toca su pictograma. Pensado para pizarra digital y tablet.</p>
+  <div class="game">
+    <div class="ghead">
+      <div class="score" aria-live="polite">Aciertos <b id="gok">0</b> de <b id="gtot">0</b></div>
+      <button class="btn sec" id="glisten" type="button">🔊 Escuchar</button>
+    </div>
+    <div class="gstage">
+      <div class="gword"><div class="gword-box"><div class="gword-text" id="gword"></div></div></div>
+      <div>
+        <div class="grow" id="grow"></div>
+      </div>
+    </div>
+    <p class="gmsg" id="gmsg" aria-live="assertive"></p>
+    <div class="gopts">
+      <label>Tema <select id="gtheme"><option value="clase">Material de clase</option><option value="comedor">Comedor</option></select></label>
+      <label><input type="checkbox" id="gvoice" checked> Voz</label>
+      <label><input type="checkbox" id="glabels"> Nombre bajo el picto</label>
+      <label><input type="checkbox" id="ghint" checked> Ayuda tras 2 fallos</label>
+      <button class="btn pri" id="greset" type="button" style="padding:8px 16px;font-size:1rem">Reiniciar</button>
+    </div>
+  </div>
+</div></section>
+
+<section class="band light"><div class="in">
+  <p class="eyebrow">Para el aula</p>
+  <h2>Cómo lo usamos</h2>
+  <div class="tiles" style="margin-top:28px">
+    <a class="tile t1" href="#tarjetas"><h3>Agenda y paneles</h3><p>Tarjetas de 5 cm para agendas y de 12–15 cm para puertas y rincones.</p><span class="go">Crear tarjeta →</span></a>
+    <a class="tile t2" href="#frases"><h3>Rutinas en frase</h3><p>«Voy al colegio en guagua». Secuencias para anticipar lo que viene.</p><span class="go">Montar frase →</span></a>
+    <a class="tile t3" href="#juego"><h3>Vocabulario jugando</h3><p>Emparejar palabra y picto con refuerzo de voz y ayuda graduada.</p><span class="go">Jugar →</span></a>
+  </div>
+</div></section>
+
+<footer id="licencia"><div class="in">
+  <div>
+    <a class="logo" href="#inicio" style="color:#fff"><i></i>Manu en clase</a>
+    <p style="margin-top:12px">Herramienta gratuita y sin ánimo de lucro para docentes y familias. Hecha en Lanzarote.</p>
+    <p>Las tarjetas se generan en tu navegador; no guardamos nada.</p>
+  </div>
+  <div>
+    <h4>Pictogramas</h4>
+    <p>Los símbolos pictográficos utilizados son propiedad del Gobierno de Aragón y han sido creados por Sergio Palao para <a href="https://arasaac.org" target="_blank" rel="noopener">ARASAAC</a>, que los distribuye bajo Licencia Creative Commons BY-NC-SA.</p>
+    <p>Puedes usar, imprimir y compartir lo que crees aquí sin fines comerciales, citando la autoría y compartiendo con la misma licencia.</p>
+  </div>
+</div></footer>
+
+<div class="toast" id="toast" role="status"></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+(()=>{
+const $=id=>document.getElementById(id);
+const API='https://api.arasaac.org/v1/pictograms/es/search/';
+const IMG=(id,r)=>`https://static.arasaac.org/pictograms/${id}/${id}_${r}.png`;
+const DPI=300, PX=cm=>Math.round(cm/2.54*DPI);
+const COLORS=[
+  {n:'Amarillo',c:'#ffde59',k:'personas'},{n:'Verde',c:'#7ed957',k:'acciones'},{n:'Naranja',c:'#ffa046',k:'nombres'},
+  {n:'Azul',c:'#5dade2',k:'adjetivos'},{n:'Rosa',c:'#f78fb3',k:'social'},{n:'Blanco',c:'#ffffff',k:'otros'}];
+const SIZES=[{cm:5,t:'agenda'},{cm:8,t:'estándar'},{cm:12,t:'pared'},{cm:15,t:'cartel'}];
+
+const toast=(t)=>{const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2600)};
+
+/* ---------- Card renderer ---------- */
+function drawCard(ctx,s,img,label,color,pos){
+  const lw=Math.max(2,s*0.0115), pad=s*0.073;
+  ctx.clearRect(0,0,s,s);
+  ctx.fillStyle=color;ctx.fillRect(0,0,s,s);
+  ctx.lineWidth=lw;ctx.strokeStyle='#000';ctx.strokeRect(lw/2,lw/2,s-lw,s-lw);
+  const bw=s-2*pad, hasL=pos!=='none';
+  const lh=s*0.173, gap=s*0.055;
+  let ib,lb;
+  if(!hasL){ib={x:pad,y:pad,w:bw,h:s-2*pad}}
+  else if(pos==='top'){lb={x:pad,y:pad,w:bw,h:lh};ib={x:pad,y:pad+lh+gap,w:bw,h:s-2*pad-lh-gap}}
+  else{ib={x:pad,y:pad,w:bw,h:s-2*pad-lh-gap};lb={x:pad,y:s-pad-lh,w:bw,h:lh}}
+  const box=b=>{ctx.fillStyle='#fff';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeRect(b.x,b.y,b.w,b.h)};
+  box(ib);
+  if(img&&img.complete&&img.naturalWidth){
+    const ip=ib.w*0.07, aw=ib.w-2*ip, ah=ib.h-2*ip, r=Math.min(aw/img.naturalWidth,ah/img.naturalHeight);
+    const w=img.naturalWidth*r,h=img.naturalHeight*r;
+    ctx.imageSmoothingQuality='high';
+    ctx.drawImage(img,ib.x+(ib.w-w)/2,ib.y+(ib.h-h)/2,w,h);
+  }
+  if(hasL){
+    box(lb);
+    const t=(label||'').trim();
+    let fs=lb.h*0.56;
+    ctx.fillStyle='#000';ctx.textAlign='center';ctx.textBaseline='middle';
+    do{ctx.font=`700 ${fs}px Arial, Helvetica, sans-serif`;fs-=1}while(ctx.measureText(t).width>lb.w*0.9&&fs>6);
+    ctx.fillText(t,lb.x+lb.w/2,lb.y+lb.h/2+lb.h*0.03);
+  }
+}
+function loadImg(src){return new Promise((ok,ko)=>{const i=new Image();i.crossOrigin='anonymous';i.onload=()=>ok(i);i.onerror=ko;i.src=src})}
+
+/* ---------- Tool state ---------- */
+const st={id:null,img:null,label:'COMER',color:COLORS[1].c,cm:8,pos:'bottom'};
+const cv=$('cv'),cx=cv.getContext('2d');
+function render(){drawCard(cx,cv.width,st.img,st.label,st.color,st.pos);
+  $('meta').textContent=`${st.cm} × ${st.cm} cm · ${st.id?'picto '+st.id:'elige un dibujo'}`;
+  ['pdf','png','add'].forEach(b=>$(b).disabled=!st.img)}
+
+function chips(){
+  const c=$('colors');c.innerHTML='';
+  COLORS.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='chip'+(o.c===st.color?' on':'');
+    b.innerHTML=`<i style="background:${o.c}"></i>${o.n} <small>${o.k}</small>`;b.onclick=()=>{st.color=o.c;chips();render()};c.appendChild(b)});
+  const z=$('sizes');z.innerHTML='';
+  SIZES.forEach(o=>{const b=document.createElement('button');b.type='button';b.className='chip'+(o.cm===st.cm?' on':'');b.style.paddingLeft='14px';
+    b.innerHTML=`${o.cm} cm <small>${o.t}</small>`;b.onclick=()=>{st.cm=o.cm;chips();render()};z.appendChild(b)});
+}
+$('custom').oninput=e=>{st.color=e.target.value;chips();render()};
+$('label').oninput=e=>{st.label=e.target.value.toUpperCase();e.target.value=st.label;render()};
+$('pos').onchange=e=>{st.pos=e.target.value;render()};
+
+async function pick(id,btn){
+  document.querySelectorAll('.res').forEach(r=>r.classList.remove('on'));btn&&btn.classList.add('on');
+  st.id=id;$('snote').textContent='Cargando dibujo…';
+  try{st.img=await loadImg(IMG(id,2500));$('snote').textContent=''}
+  catch(e){try{st.img=await loadImg(IMG(id,500));$('snote').textContent=''}catch(e2){$('snote').textContent='No se pudo cargar el dibujo. Prueba otro.'}}
+  render();
+}
+async function search(q){
+  q=q.trim().toLowerCase();if(!q)return;
+  const R=$('results');R.innerHTML='';$('snote').textContent='Buscando…';
+  try{
+    const r=await fetch(API+encodeURIComponent(q));
+    if(!r.ok)throw 0;
+    const data=(await r.json()).slice(0,12);
+    $('snote').textContent=data.length?'Toca el dibujo que conozca tu alumno.':'';
+    data.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='res';
+      const kw=(p.keywords&&p.keywords[0]&&p.keywords[0].keyword)||q;b.setAttribute('aria-label',kw+' ('+p._id+')');b.title=kw+' · '+p._id;
+      b.innerHTML=`<img alt="" loading="lazy" src="${IMG(p._id,300)}">`;b.onclick=()=>pick(p._id,b);R.appendChild(b);
+      if(i===0)pick(p._id,b)});
+    $('label').value=st.label=q.toUpperCase();render();
+  }catch(e){$('snote').textContent=`No hay resultados para «${q}». Prueba en singular o con el verbo en infinitivo.`}
+}
+$('sform').onsubmit=e=>{e.preventDefault();search($('q').value)};
+
+/* ---------- Downloads ---------- */
+function cardCanvas(c){const s=PX(c.cm),k=document.createElement('canvas');k.width=k.height=s;drawCard(k.getContext('2d'),s,c.img,c.label,c.color,c.pos);return k}
+function slug(t){return (t||'tarjeta').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'')||'tarjeta'}
+function save(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
+$('png').onclick=()=>{cardCanvas(st).toBlob(b=>{save(b,`${slug(st.label)}_${st.cm}cm.png`);toast('PNG descargado')},'image/png')};
+$('pdf').onclick=()=>{
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'cm',format:'a4'});
+  const data=cardCanvas(st).toDataURL('image/png');
+  const n=Math.max(1,Math.min(60,parseInt($('copies').value)||1)),m=1,g=0.4,W=21,H=29.7,s=st.cm;
+  const cols=Math.max(1,Math.floor((W-2*m+g)/(s+g))),rows=Math.max(1,Math.floor((H-2*m+g)/(s+g))),per=cols*rows;
+  const x0=(W-(cols*s+(cols-1)*g))/2;
+  for(let i=0;i<n;i++){if(i&&i%per===0)doc.addPage();const k=i%per;doc.addImage(data,'PNG',x0+(k%cols)*(s+g),m+Math.floor(k/cols)*(s+g),s,s)}
+  doc.setFontSize(7);doc.setTextColor(120);
+  doc.text('Pictogramas: Sergio Palao. Origen: ARASAAC (arasaac.org). Licencia CC BY-NC-SA. Propiedad: Gobierno de Aragón.',W/2,H-0.5,{align:'center'});
+  doc.save(`${slug(st.label)}_${st.cm}cm.pdf`);toast('PDF descargado');
+};
+
+/* ---------- Frase ---------- */
+const frase=[];
+function drawFrase(){
+  const F=$('frase');F.innerHTML='';
+  if(!frase.length){F.innerHTML='<p class="empty">Aún no hay tarjetas. Crea una arriba y pulsa «Añadir a la frase».</p>'}
+  frase.forEach((c,i)=>{
+    const d=document.createElement('div');d.className='fitem';
+    const k=document.createElement('canvas');k.width=k.height=300;drawCard(k.getContext('2d'),300,c.img,c.label,c.color,c.pos);
+    k.setAttribute('aria-label',c.label);d.appendChild(k);
+    const ctl=document.createElement('div');ctl.className='ctl';
+    [['←','Mover a la izquierda',()=>{if(i>0){[frase[i-1],frase[i]]=[frase[i],frase[i-1]];drawFrase()}}],
+     ['→','Mover a la derecha',()=>{if(i<frase.length-1){[frase[i+1],frase[i]]=[frase[i],frase[i+1]];drawFrase()}}],
+     ['✕','Quitar',()=>{frase.splice(i,1);drawFrase()}]].forEach(([t,l,f])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-label',l);b.onclick=f;ctl.appendChild(b)});
+    d.appendChild(ctl);F.appendChild(d)});
+  const fit=fraseSize();
+  $('fnote').textContent=frase.length?`${frase.length} tarjeta${frase.length>1?'s':''} · en el A4 saldrán de ${fit.toFixed(1).replace('.',',')} cm`:'';
+  $('fpdf').disabled=$('fclear').disabled=!frase.length;
+}
+function fraseSize(){const n=frase.length||1,g=0.3,avail=29.7-2;return Math.min(8,(avail-(n-1)*g)/n)}
+$('add').onclick=()=>{frase.push({...st,cm:8});drawFrase();toast(`«${st.label}» añadida a la frase`)};
+$('fclear').onclick=()=>{frase.length=0;drawFrase()};
+$('fpdf').onclick=()=>{
+  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'cm',format:'a4',orientation:'landscape'});
+  const s=fraseSize(),g=0.3,W=29.7,H=21,tw=frase.length*s+(frase.length-1)*g;let x=(W-tw)/2;const y=(H-s)/2;
+  frase.forEach(c=>{doc.addImage(cardCanvas({...c,cm:s}).toDataURL('image/png'),'PNG',x,y,s,s);x+=s+g});
+  doc.setFontSize(7);doc.setTextColor(120);
+  doc.text('Pictogramas: Sergio Palao. Origen: ARASAAC (arasaac.org). Licencia CC BY-NC-SA. Propiedad: Gobierno de Aragón.',W/2,H-0.5,{align:'center'});
+  doc.save(`frase_${slug(frase.map(c=>c.label).join(' '))}.pdf`);toast('Frase descargada');
+};
+
+/* ---------- Juego ---------- */
+const THEMES={
+  clase:[['LÁPIZ',2440],['GOMA',2409],['TIJERAS',6664],['MESA',3129],['SILLA',3155],['PIZARRA',2526],['LIBRO',2450],['MOCHILA',2475],['REGLA',2815],['SACAPUNTAS',2553],['CUADERNO',2359],['PEGAMENTO',2510],['PAPELERA',2861],['ORDENADOR',2487],['ESTUCHE',8575]],
+  comedor:[['CUCHARA',2362],['TENEDOR',2588],['CUCHILLO',4931],['PLATO',2532],['VASO',2610],['SERVILLETA',2569],['MANTEL',2460],['FIAMBRERA',39457],['CUBIERTOS',8545]]
+};
+let g={items:[],target:null,fails:0,ok:0,tot:0,lock:false,last:null};
+const shuffle=a=>{for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function say(t,force){if(!force&&!$('gvoice').checked)return;try{const s=window.speechSynthesis;if(!s)return;s.cancel();const u=new SpeechSynthesisUtterance(t.toLowerCase());u.lang='es-ES';u.rate=.85;s.speak(u)}catch(e){}}
+function fitWord(){const el=$('gword'),box=el.parentElement;let s=64;el.style.fontSize=s+'px';while(el.scrollWidth>box.clientWidth&&s>16){s-=2;el.style.fontSize=s+'px'}}
+function round(speak){
+  g.lock=false;g.fails=0;$('gmsg').textContent='';$('gmsg').className='gmsg';
+  const pool=g.items.filter(i=>i!==g.last),five=shuffle(pool.slice()).slice(0,5);
+  g.target=five[Math.floor(Math.random()*five.length)];g.last=g.target;
+  $('gword').textContent=g.target[0];fitWord();
+  const row=$('grow');row.innerHTML='';
+  five.forEach(it=>{const b=document.createElement('button');b.type='button';b.className='gcard';b.dataset.w=it[0];b.setAttribute('aria-label',it[0].toLowerCase());
+    b.innerHTML=`<span class="pic"><img alt="" src="${IMG(it[1],300)}"></span><span class="lbl">${$('glabels').checked?it[0]:''}</span>`;
+    b.onclick=()=>gpick(b,it);row.appendChild(b)});
+  if(speak)say(g.target[0]);
+}
+function gpick(b,it){
+  if(g.lock||b.classList.contains('no'))return;g.tot++;
+  if(it===g.target){g.lock=true;g.ok++;b.classList.add('ok');document.querySelectorAll('.gcard.hint').forEach(c=>c.classList.remove('hint'));
+    $('gmsg').textContent='¡Muy bien! '+it[0];$('gmsg').className='gmsg good';say('¡Muy bien! '+it[0]);setTimeout(()=>round(true),1800)}
+  else{g.fails++;b.classList.add('no');$('gmsg').textContent='Prueba otra vez';$('gmsg').className='gmsg try';say('Prueba otra vez');
+    if(g.fails>=2&&$('ghint').checked)document.querySelectorAll('.gcard').forEach(c=>{if(c.dataset.w===g.target[0])c.classList.add('hint')})}
+  $('gok').textContent=g.ok;$('gtot').textContent=g.tot;
+}
+function startGame(speak){g.items=THEMES[$('gtheme').value];g.ok=g.tot=0;g.last=null;$('gok').textContent=0;$('gtot').textContent=0;round(speak)}
+$('glisten').onclick=()=>say(g.target[0],true);
+$('glabels').onchange=()=>document.querySelectorAll('.gcard').forEach(c=>c.querySelector('.lbl').textContent=$('glabels').checked?c.dataset.w:'');
+$('greset').onclick=()=>startGame(true);$('gtheme').onchange=()=>startGame(true);
+window.addEventListener('resize',fitWord);
+
+/* ---------- Init ---------- */
+chips();render();drawFrase();startGame(false);
+search('comer');
+if(document.fonts)document.fonts.ready.then(fitWord);
+})();
+</script>
+</body>
+</html>
