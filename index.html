@@ -146,6 +146,18 @@ input:focus,select:focus{border-color:var(--azur);outline:none}
 .fsize .chip{padding:6px 12px}
 .frase-bar{row-gap:14px}
 #cmc,#fcm{flex:0 0 auto}
+.adjust{display:flex;flex-direction:column;gap:8px}
+.adjust .note{margin:0}
+.adj-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
+.adj-row input[type=range]{flex:1 1 160px;accent-color:var(--azur);min-width:0}
+.btn.sec.adjbtn,.btn.sec.edadjbtn{color:var(--tinta);box-shadow:inset 0 0 0 2px #cbd6ea}
+.btn.sec.adjbtn:hover,.btn.sec.edadjbtn:hover{box-shadow:inset 0 0 0 2px var(--azur)}
+.ed-grid .step>input,.step>input{flex:0 0 auto}
+canvas.movable{cursor:grab;touch-action:none}
+canvas.movable:active{cursor:grabbing}
+.ed-adjust{display:grid;grid-template-columns:minmax(0,220px) 1fr;gap:18px;align-items:center}
+.ed-adjust canvas{width:100%;max-width:220px;height:auto;border-radius:4px;background:#fff}
+@media (max-width:560px){.ed-adjust{grid-template-columns:1fr}.ed-adjust canvas{max-width:260px}}
 
 /* GAME */
 .game{background:var(--noche);border-radius:10px;padding:clamp(18px,4vw,36px);display:flex;flex-direction:column;gap:22px}
@@ -245,7 +257,7 @@ footer p{margin:0 0 8px}
           <label class="btn lt upbtn" for="file" tabindex="0">📷 Subir mi imagen</label>
           <input type="file" id="file" accept="image/*" class="sr">
           <span class="note">Desde el móvil o la tablet puedes hacer una foto. En el ordenador, arrastra la imagen aquí o pégala con Ctrl+V. La imagen no sale de tu dispositivo.</span>
-          <select id="fit" aria-label="Ajuste de la imagen" hidden><option value="contain">Imagen completa</option><option value="cover">Llenar el recuadro</option></select>
+          
         </div>
       </div>
 
@@ -271,7 +283,16 @@ footer p{margin:0 0 8px}
     </div>
 
     <div class="preview">
-      <div class="stage"><canvas id="cv" width="600" height="600" aria-label="Vista previa de la tarjeta"></canvas></div>
+      <div class="stage"><canvas id="cv" width="600" height="600" tabindex="0" aria-label="Vista previa de la tarjeta"></canvas></div>
+      <div class="adjust" id="adj" hidden>
+        <p class="note">Arrastra la foto en la tarjeta para moverla. Para acercar o alejar usa el deslizador, pellizca con dos dedos o gira la rueda del ratón.</p>
+        <div class="adj-row">
+          <label for="zoom" class="lab2">Zoom</label>
+          <input type="range" id="zoom" min="30" max="600" step="1" value="100" aria-label="Zoom de la foto">
+          <button class="btn sec mini adjbtn" type="button" data-adj="fit">Encajar</button>
+          <button class="btn sec mini adjbtn" type="button" data-adj="fill">Llenar</button>
+        </div>
+      </div>
       <p class="meta" id="meta"></p>
       <div class="copies"><label for="copies">Copias en el PDF</label><input type="number" id="copies" min="1" max="60" value="1"></div>
       <div class="actions">
@@ -301,7 +322,7 @@ footer p{margin:0 0 8px}
     <div class="frase" id="frase"></div>
 
     <div class="editor" id="ed" hidden>
-      <div class="ed-head"><strong id="edtitle">Editar tarjeta</strong><button class="btn sec mini" id="edclose" type="button">Cerrar</button></div>
+      <div class="ed-head"><strong id="edtitle">Editar tarjeta</strong><button class="btn sec mini adjbtn" id="edclose" type="button">Cerrar</button></div>
       <div class="ed-grid">
         <div class="step"><label for="edlabel" class="lab">Texto</label><input type="text" id="edlabel" maxlength="30"></div>
         <form class="step" id="edsform"><label for="edq" class="lab">Buscar otro dibujo</label><div class="row"><input type="text" id="edq" autocomplete="off"><button class="btn pri mini" type="submit">Buscar</button></div></form>
@@ -311,7 +332,18 @@ footer p{margin:0 0 8px}
       <div class="upload" id="eddrop">
         <label class="btn lt upbtn" for="edfile" tabindex="0">📷 Subir mi imagen</label>
         <input type="file" id="edfile" accept="image/*" class="sr">
-        <select id="edfit" aria-label="Ajuste de la imagen"><option value="contain">Imagen completa</option><option value="cover">Llenar el recuadro</option></select>
+      </div>
+      <div class="ed-adjust" id="edadj" hidden>
+        <canvas id="edcv" width="400" height="400" tabindex="0" aria-label="Ajusta la foto: arrastra para moverla"></canvas>
+        <div class="adjust">
+          <p class="note">Arrastra la foto para moverla. Acerca o aleja con el deslizador, pellizcando o con la rueda del ratón.</p>
+          <div class="adj-row">
+            <label for="edzoom" class="lab2">Zoom</label>
+            <input type="range" id="edzoom" min="30" max="600" step="1" value="100" aria-label="Zoom de la foto">
+            <button class="btn sec mini edadjbtn" type="button" data-adj="fit">Encajar</button>
+            <button class="btn sec mini edadjbtn" type="button" data-adj="fill">Llenar</button>
+          </div>
+        </div>
       </div>
       <div class="chips" id="edcolors"></div>
     </div>
@@ -393,7 +425,7 @@ const SIZES=[{cm:5,t:'agenda'},{cm:8,t:'estándar'},{cm:12,t:'pared'},{cm:15,t:'
 const toast=(t)=>{const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2600)};
 
 /* ---------- Card renderer ---------- */
-function drawCard(ctx,s,img,label,color,pos,fit){
+function drawCard(ctx,s,img,label,color,pos,fit,adj){
   const lw=Math.max(2,s*0.0115), pad=s*0.073;
   ctx.clearRect(0,0,s,s);
   ctx.fillStyle=color;ctx.fillRect(0,0,s,s);
@@ -408,7 +440,12 @@ function drawCard(ctx,s,img,label,color,pos,fit){
   box(ib);
   if(img&&img.complete&&img.naturalWidth){
     ctx.imageSmoothingQuality='high';
-    if(fit==='cover'){
+    if(adj){
+      const b=imgBox(s,pos),r=Math.min(b.w/img.naturalWidth,b.h/img.naturalHeight)*adj.z,w=img.naturalWidth*r,h=img.naturalHeight*r;
+      ctx.save();ctx.beginPath();ctx.rect(b.x,b.y,b.w,b.h);ctx.clip();
+      ctx.drawImage(img,b.x+b.w/2+adj.x*b.w-w/2,b.y+b.h/2+adj.y*b.h-h/2,w,h);ctx.restore();
+      ctx.strokeRect(ib.x,ib.y,ib.w,ib.h);
+    }else if(fit==='cover'){
       const ix=ib.x+lw/2,iy=ib.y+lw/2,iw=ib.w-lw,ih=ib.h-lw,r=Math.max(iw/img.naturalWidth,ih/img.naturalHeight);
       const w=img.naturalWidth*r,h=img.naturalHeight*r;
       ctx.save();ctx.beginPath();ctx.rect(ix,iy,iw,ih);ctx.clip();
@@ -437,6 +474,31 @@ function drawCard(ctx,s,img,label,color,pos,fit){
       ctx.fillText(t,lb.x+lb.w/2,lb.y+lb.h/2+lb.h*0.03);
     }
   }
+}
+function imgBox(s,pos){const pad=s*0.073,bw=s-2*pad,lh=s*0.173,gap=s*0.055,lw=Math.max(2,s*0.0115);let b;
+  if(pos==='none')b={x:pad,y:pad,w:bw,h:s-2*pad};else if(pos==='top')b={x:pad,y:pad+lh+gap,w:bw,h:s-2*pad-lh-gap};else b={x:pad,y:pad,w:bw,h:s-2*pad-lh-gap};
+  return{x:b.x+lw/2,y:b.y+lw/2,w:b.w-lw,h:b.h-lw}}
+function fillZ(img,pos){const b=imgBox(600,pos),W=img.naturalWidth,H=img.naturalHeight;return Math.max(b.w/W,b.h/H)/Math.min(b.w/W,b.h/H)}
+const ZMIN=0.3,ZMAX=6,clampZ=z=>Math.min(ZMAX,Math.max(ZMIN,z));
+/* Arrastrar, pellizcar y rueda para colocar la foto dentro del recuadro */
+function attachAdjust(cvs,get,redraw){
+  const pts=new Map();
+  const geo=()=>{const c=get(),r=cvs.getBoundingClientRect();return{c,k:cvs.width/r.width,b:imgBox(cvs.width,c?c.pos:'bottom')}};
+  cvs.addEventListener('pointerdown',e=>{const{c}=geo();if(!c||!c.adj)return;e.preventDefault();cvs.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY})});
+  cvs.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const{c,k,b}=geo();if(!c||!c.adj)return;
+    const prev=new Map(pts);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    if(pts.size===1){const p=prev.get(e.pointerId);c.adj.x+=(e.clientX-p.x)*k/b.w;c.adj.y+=(e.clientY-p.y)*k/b.h}
+    else if(pts.size>=2){const [a,bb]=[...pts.values()],[a0,b0]=[...prev.values()];
+      const d=Math.hypot(a.x-bb.x,a.y-bb.y),d0=Math.hypot(a0.x-b0.x,a0.y-b0.y)||d;
+      c.adj.z=clampZ(c.adj.z*d/d0);
+      c.adj.x+=(((a.x+bb.x)-(a0.x+b0.x))/2)*k/b.w;c.adj.y+=(((a.y+bb.y)-(a0.y+b0.y))/2)*k/b.h}
+    redraw()});
+  ['pointerup','pointercancel','lostpointercapture'].forEach(t=>cvs.addEventListener(t,e=>pts.delete(e.pointerId)));
+  cvs.addEventListener('wheel',e=>{const{c}=geo();if(!c||!c.adj)return;e.preventDefault();c.adj.z=clampZ(c.adj.z*Math.exp(-e.deltaY*0.0015));redraw()},{passive:false});
+  cvs.addEventListener('keydown',e=>{const{c}=geo();if(!c||!c.adj)return;const st=0.02;
+    const m={ArrowLeft:[-st,0],ArrowRight:[st,0],ArrowUp:[0,-st],ArrowDown:[0,st]}[e.key];
+    if(m){c.adj.x+=m[0];c.adj.y+=m[1]}else if(e.key==='+'||e.key==='=')c.adj.z=clampZ(c.adj.z*1.1);else if(e.key==='-')c.adj.z=clampZ(c.adj.z/1.1);else return;
+    e.preventDefault();redraw()});
 }
 function readImage(file){return new Promise((ok,ko)=>{
   if(!file)return ko(new Error('none'));
@@ -475,12 +537,13 @@ window.addEventListener('drop',e=>e.preventDefault());
 document.querySelectorAll('.upbtn').forEach(l=>l.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$(l.htmlFor).click()}}));
 
 /* ---------- Tool state ---------- */
-const st={id:null,img:null,src:null,label:'COMER',color:COLORS[1].c,cm:8,pos:'bottom',fit:'contain',alts:[],q:'comer'};
+const st={id:null,img:null,src:null,label:'COMER',color:COLORS[1].c,cm:8,pos:'bottom',fit:'contain',adj:null,alts:[],q:'comer'};
 const cv=$('cv'),cx=cv.getContext('2d');
-function render(){drawCard(cx,cv.width,st.img,st.label,st.color,st.pos,st.fit);
+function render(){drawCard(cx,cv.width,st.img,st.label,st.color,st.pos,st.fit,st.src==='propia'?st.adj:null);
   $('meta').textContent=`${fmtCm(st.cm)} × ${fmtCm(st.cm)} cm · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'elige un dibujo'}`;
   ['pdf','png','add'].forEach(b=>$(b).disabled=!st.img);
-  $('fit').hidden=st.src!=='propia'}
+  const own=st.src==='propia'&&!!st.adj;$('adj').hidden=!own;cv.classList.toggle('movable',own);
+  if(own)$('zoom').value=Math.round(st.adj.z*100)}
 function chips(){
   colorChips($('colors'),st.color,c=>{st.color=c;chips();render()});
   sizeChips($('sizes'),SIZES.map(o=>({v:o.cm,h:`${o.cm} cm <small>${o.t}</small>`})),st.cm,v=>{st.cm=v;$('cmc').value='';chips();render()});
@@ -488,14 +551,16 @@ function chips(){
 $('custom').oninput=e=>{st.color=e.target.value;chips();render()};
 $('label').oninput=e=>{st.label=e.target.value.toUpperCase();e.target.value=st.label;render()};
 $('pos').onchange=e=>{st.pos=e.target.value;render()};
-$('fit').onchange=e=>{st.fit=e.target.value;render()};
+attachAdjust(cv,()=>st.src==='propia'?st:null,render);
+$('zoom').oninput=e=>{if(!st.adj)return;st.adj.z=clampZ(e.target.value/100);render()};
+document.querySelectorAll('.adjbtn').forEach(b=>b.onclick=()=>{if(!st.img||!st.adj)return;st.adj={z:b.dataset.adj==='fill'?fillZ(st.img,st.pos):1,x:0,y:0};render()});
 $('cmc').oninput=()=>{const v=numIn($('cmc'));if(v>=2&&v<=19){st.cm=Math.round(v*10)/10;chips();render()}};
 $('cmc').onchange=()=>{const v=numIn($('cmc'));if(isNaN(v))return;const c=Math.min(19,Math.max(2,Math.round(v*10)/10));
   if(c!==v)toast('El tamaño va de 2 a 19 cm');$('cmc').value=fmtCm(c);st.cm=c;chips();render()};
 
 async function pick(id,btn){
   document.querySelectorAll('#results .res').forEach(r=>r.classList.remove('on'));btn&&btn.classList.add('on');
-  st.id=id;st.src='arasaac';st.fit='contain';$('fit').value='contain';$('snote').textContent='Cargando dibujo…';
+  st.id=id;st.src='arasaac';st.fit='contain';st.adj=null;$('snote').textContent='Cargando dibujo…';
   try{st.img=await loadPicto(id);$('snote').textContent=''}
   catch(e){$('snote').textContent='No se pudo cargar el dibujo. Prueba otro.'}
   render();
@@ -517,9 +582,9 @@ $('sform').onsubmit=e=>{e.preventDefault();search($('q').value)};
 
 async function useOwn(file){
   try{const img=await readImage(file);
-    st.img=img;st.src='propia';st.id='propia';
+    st.img=img;st.src='propia';st.id='propia';st.adj={z:fillZ(img,st.pos),x:0,y:0};
     document.querySelectorAll('#results .res').forEach(r=>r.classList.remove('on'));
-    $('snote').textContent='Imagen cargada. Escribe el texto de la tarjeta en el paso 2.';
+    $('snote').textContent='Imagen cargada. Colócala a tu gusto en la tarjeta y escribe el texto en el paso 2.';
     render();$('label').focus();$('label').select();
   }catch(e){$('snote').textContent=IMGERR}
 }
@@ -532,7 +597,7 @@ document.addEventListener('paste',e=>{
 
 /* ---------- Downloads ---------- */
 const CREDIT='Pictogramas: Sergio Palao. Origen: ARASAAC (arasaac.org). Licencia CC BY-NC-SA. Propiedad: Gobierno de Aragón.';
-function cardCanvas(c){const s=PX(c.cm),k=document.createElement('canvas');k.width=k.height=s;drawCard(k.getContext('2d'),s,c.img,c.label,c.color,c.pos,c.fit);return k}
+function cardCanvas(c){const s=PX(c.cm),k=document.createElement('canvas');k.width=k.height=s;drawCard(k.getContext('2d'),s,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
 function slug(t){return (t||'tarjeta').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'tarjeta'}
 function save(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
 $('png').onclick=()=>{cardCanvas(st).toBlob(b=>{save(b,`${slug(st.label)}_${fmtCm(st.cm)}cm.png`);toast('PNG descargado')},'image/png')};
@@ -556,7 +621,7 @@ function fraseSize(){if(fsize!=='auto')return fsize;const n=frase.length||1,g=0.
 function fraseLayout(){const s=fraseSize(),g=gapFor(s);
   const cols=Math.max(1,Math.floor((L.W-2*L.m+g)/(s+g))),rowsPer=Math.max(1,Math.floor((L.H-2*L.m-L.foot+g)/(s+g)));
   const nRows=Math.max(1,Math.ceil(frase.length/cols));return{s,g,cols,rowsPer,nRows,pages:Math.ceil(nRows/rowsPer)}}
-function itemCanvas(c){const k=document.createElement('canvas');k.width=k.height=300;drawCard(k.getContext('2d'),300,c.img,c.label,c.color,c.pos,c.fit);return k}
+function itemCanvas(c){const k=document.createElement('canvas');k.width=k.height=300;drawCard(k.getContext('2d'),300,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
 function drawFrase(){
   const F=$('frase');F.innerHTML='';
   if(!frase.length)F.innerHTML='<p class="empty">Escribe una frase arriba y pulsa «Crear frase». También puedes crear una tarjeta en la herramienta 1 y pulsar «Añadir a la frase».</p>';
@@ -581,7 +646,7 @@ $('fcm').oninput=()=>{const v=numIn($('fcm'));if(v>=2&&v<=18){fsize=Math.round(v
 $('fcm').onchange=()=>{const v=numIn($('fcm'));if(isNaN(v))return;const c=Math.min(18,Math.max(2,Math.round(v*10)/10));
   if(c!==v)toast('En la frase el tamaño va de 2 a 18 cm');$('fcm').value=fmtCm(c);fsize=c;drawFrase()};
 
-$('add').onclick=()=>{frase.push({label:st.label,img:st.img,id:st.src==='arasaac'?st.id:null,src:st.src,color:st.color,pos:st.pos,fit:st.fit,alts:[...st.alts],q:st.q});
+$('add').onclick=()=>{frase.push({label:st.label,img:st.img,id:st.src==='arasaac'?st.id:null,src:st.src,color:st.color,pos:st.pos,fit:st.fit,adj:st.adj?{...st.adj}:null,alts:[...st.alts],q:st.q});
   drawFrase();toast(`«${st.label}» añadida a la frase`)};
 $('fclear').onclick=()=>{frase.length=0;closeEd()};
 $('fpdf').onclick=()=>{
@@ -676,31 +741,37 @@ $('qform').onsubmit=async e=>{
 function openEd(i){
   const c=frase[i];if(!c)return closeEd();
   sel=i;$('ed').hidden=false;$('edtitle').textContent=`Tarjeta ${i+1} de ${frase.length}`;
-  $('edlabel').value=c.label||'';$('edq').value=c.q||'';$('edfit').value=c.fit||'contain';$('ednote').textContent='';
-  edAlts();edColors();drawFrase();
+  $('edlabel').value=c.label||'';$('edq').value=c.q||'';$('ednote').textContent='';
+  edAlts();edColors();edAdjust();drawFrase();
 }
 function closeEd(){sel=-1;$('ed').hidden=true;drawFrase()}
-function edColors(){const c=frase[sel];if(!c)return;colorChips($('edcolors'),c.color,col=>{c.color=col;edColors();drawFrase()})}
+function edColors(){const c=frase[sel];if(!c)return;colorChips($('edcolors'),c.color,col=>{c.color=col;edColors();edAdjust();drawFrase()})}
 function edAlts(){
   const c=frase[sel],R=$('edres');R.innerHTML='';if(!c)return;
   if(!c.alts.length){$('ednote').textContent='Busca otra palabra o sube tu propia imagen.';return}
   c.alts.forEach(id=>{const b=document.createElement('button');b.type='button';b.className='res'+(id===c.id&&c.src==='arasaac'?' on':'');
     b.setAttribute('aria-label','Dibujo '+id);b.innerHTML=`<img alt="" loading="lazy" src="${IMG(id,300)}">`;
-    b.onclick=()=>{c.id=id;c.src='arasaac';c.fit='contain';$('edfit').value='contain';c.loading=true;edAlts();drawFrase();
+    b.onclick=()=>{c.id=id;c.src='arasaac';c.fit='contain';c.adj=null;c.loading=true;edAlts();edAdjust();drawFrase();
       loadPicto(id).then(img=>{c.img=img;$('ednote').textContent=''}).catch(()=>{$('ednote').textContent='No se pudo cargar ese dibujo. Prueba otro.'})
         .finally(()=>{c.loading=false;drawFrase()})};
     R.appendChild(b)});
 }
 async function edOwn(file){const c=frase[sel];if(!c)return;
-  try{c.img=await readImage(file);c.src='propia';c.id=null;c.fit=$('edfit').value;$('ednote').textContent='Imagen propia puesta en esta tarjeta.';edAlts();drawFrase()}
+  try{c.img=await readImage(file);c.src='propia';c.id=null;c.adj={z:fillZ(c.img,c.pos),x:0,y:0};$('ednote').textContent='Imagen puesta. Colócala a tu gusto arrastrándola.';edAlts();edAdjust();drawFrase()}
   catch(e){$('ednote').textContent=IMGERR}}
-$('edlabel').oninput=e=>{const c=frase[sel];if(!c)return;c.label=e.target.value.toUpperCase();e.target.value=c.label;drawFrase()};
+$('edlabel').oninput=e=>{const c=frase[sel];if(!c)return;c.label=e.target.value.toUpperCase();e.target.value=c.label;edAdjust();drawFrase()};
 $('edsform').onsubmit=async e=>{e.preventDefault();const c=frase[sel];if(!c)return;const q=$('edq').value.trim();if(!q)return;
   $('ednote').textContent='Buscando…';const d=await apiSearch(q);
   if(!d.length){$('ednote').textContent=`No hay resultados para «${q}». Prueba otra palabra o sube tu imagen.`;return}
   c.alts=d.slice(0,16).map(p=>p._id);c.q=q;$('ednote').textContent='Toca el dibujo que quieras.';edAlts()};
 $('edfile').onchange=e=>{const f=e.target.files[0];if(f)edOwn(f);e.target.value=''};
-$('edfit').onchange=e=>{const c=frase[sel];if(!c)return;c.fit=e.target.value;drawFrase()};
+const edcv=$('edcv');
+function edAdjust(){const c=frase[sel],own=!!(c&&c.src==='propia'&&c.img&&c.adj);$('edadj').hidden=!own;edcv.classList.toggle('movable',own);if(!own)return;
+  drawCard(edcv.getContext('2d'),edcv.width,c.img,c.label,c.color,c.pos,c.fit,c.adj);$('edzoom').value=Math.round(c.adj.z*100)}
+let edT=0;const edRedraw=()=>{edAdjust();clearTimeout(edT);edT=setTimeout(drawFrase,120)};
+attachAdjust(edcv,()=>{const c=frase[sel];return c&&c.src==='propia'?c:null},edRedraw);
+$('edzoom').oninput=e=>{const c=frase[sel];if(!c||!c.adj)return;c.adj.z=clampZ(e.target.value/100);edRedraw()};
+document.querySelectorAll('.edadjbtn').forEach(b=>b.onclick=()=>{const c=frase[sel];if(!c||!c.img||!c.adj)return;c.adj={z:b.dataset.adj==='fill'?fillZ(c.img,c.pos):1,x:0,y:0};edRedraw()});
 $('edclose').onclick=closeEd;
 dropZone($('eddrop'),edOwn);
 
