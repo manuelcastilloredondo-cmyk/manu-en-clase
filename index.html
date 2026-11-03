@@ -136,7 +136,7 @@ input:focus,select:focus{border-color:var(--azur);outline:none}
 .frase-wrap{background:#fff;border-radius:8px;padding:24px;color:var(--tinta)}
 .frase{display:flex;gap:14px;overflow-x:auto;padding:6px 2px 14px;min-height:150px;align-items:flex-start}
 .fitem{flex:0 0 150px;display:flex;flex-direction:column;gap:6px;align-items:center}
-.fitem canvas{width:150px;height:150px;display:block}
+.fitem canvas{width:150px;height:auto;display:block}
 .fitem .ctl{display:flex;gap:4px}
 .fitem .ctl button{appearance:none;border:2px solid #cbd6ea;background:#fff;border-radius:6px;width:36px;height:32px;cursor:pointer;font-weight:700;color:var(--tinta)}
 .fitem .ctl button:hover{border-color:var(--azur)}
@@ -171,7 +171,8 @@ input:focus,select:focus{border-color:var(--azur);outline:none}
 .fsize{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
 .fsize .chip{padding:6px 12px}
 .frase-bar{row-gap:14px}
-#cmc,#fcm{flex:0 0 auto}
+.dims{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.dims input{flex:0 0 auto;width:84px}
 .adjust{display:flex;flex-direction:column;gap:8px}
 .adjust .note{margin:0}
 .adj-row{display:flex;flex-wrap:wrap;gap:10px;align-items:center}
@@ -306,7 +307,8 @@ footer p{margin:0 0 8px}
       <div class="step">
         <span class="lab"><b>4</b>Tamaño</span>
         <div class="chips" id="sizes"></div>
-        <div class="row" style="align-items:center"><label class="note" for="cmc">Otro tamaño</label><input type="text" id="cmc" inputmode="decimal" placeholder="cm" autocomplete="off" style="width:110px"><span class="note">cm, de 2 a 19</span></div>
+        <div class="row dims"><span class="note">Otro tamaño</span><label class="note" for="cmw">Ancho</label><input type="text" id="cmw" inputmode="decimal" placeholder="cm" autocomplete="off"><span class="note">×</span><label class="note" for="cmh">Alto</label><input type="text" id="cmh" inputmode="decimal" placeholder="cm" autocomplete="off"><span class="note">cm</span></div>
+        <p class="note">Puede ser más alta que ancha, por ejemplo 10 × 15. Entre 2 y 27 cm, y el lado corto como mucho 19 cm para que quepa en un A4.</p>
       </div>
     </div>
 
@@ -377,7 +379,7 @@ footer p{margin:0 0 8px}
     </div>
 
     <div class="frase-bar">
-      <div class="fsize"><span class="lab2">Tamaño</span><div class="chips" id="fsizes"></div><input type="text" id="fcm" inputmode="decimal" placeholder="otro cm" autocomplete="off" aria-label="Otro tamaño en cm" style="width:96px"></div>
+      <div class="fsize"><span class="lab2">Tamaño</span><div class="chips" id="fsizes"></div><span class="dims"><input type="text" id="fw" inputmode="decimal" placeholder="ancho" autocomplete="off" aria-label="Ancho en cm"><span class="note">×</span><input type="text" id="fh" inputmode="decimal" placeholder="alto" autocomplete="off" aria-label="Alto en cm"><span class="note">cm</span></span></div>
       <span class="note" id="fnote"></span>
       <div class="row">
         <button class="btn sec" id="fclear" type="button" style="color:var(--tinta);box-shadow:inset 0 0 0 2px #cbd6ea">Vaciar</button>
@@ -468,23 +470,23 @@ const SIZES=[{cm:5,t:'agenda'},{cm:8,t:'estándar'},{cm:12,t:'pared'},{cm:15,t:'
 const toast=(t)=>{const el=$('toast');el.textContent=t;el.classList.add('show');clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove('show'),2600)};
 
 /* ---------- Card renderer ---------- */
-function drawCard(ctx,s,img,label,color,pos,fit,adj){
-  const lw=Math.max(2,s*0.0115), pad=s*0.073;
-  ctx.clearRect(0,0,s,s);
-  ctx.fillStyle=color;ctx.fillRect(0,0,s,s);
-  ctx.lineWidth=lw;ctx.strokeStyle='#000';ctx.strokeRect(lw/2,lw/2,s-lw,s-lw);
-  const bw=s-2*pad, hasL=pos!=='none';
-  const lh=s*0.173, gap=s*0.055;
+function drawCard(ctx,W,H,img,label,color,pos,fit,adj){
+  const u=Math.min(W,H),lw=Math.max(2,u*0.0115), pad=u*0.073;
+  ctx.clearRect(0,0,W,H);
+  ctx.fillStyle=color;ctx.fillRect(0,0,W,H);
+  ctx.lineWidth=lw;ctx.strokeStyle='#000';ctx.strokeRect(lw/2,lw/2,W-lw,H-lw);
+  const bw=W-2*pad, hasL=pos!=='none';
+  const lh=u*0.173, gap=u*0.055;
   let ib,lb;
-  if(!hasL){ib={x:pad,y:pad,w:bw,h:s-2*pad}}
-  else if(pos==='top'){lb={x:pad,y:pad,w:bw,h:lh};ib={x:pad,y:pad+lh+gap,w:bw,h:s-2*pad-lh-gap}}
-  else{ib={x:pad,y:pad,w:bw,h:s-2*pad-lh-gap};lb={x:pad,y:s-pad-lh,w:bw,h:lh}}
+  if(!hasL){ib={x:pad,y:pad,w:bw,h:H-2*pad}}
+  else if(pos==='top'){lb={x:pad,y:pad,w:bw,h:lh};ib={x:pad,y:pad+lh+gap,w:bw,h:H-2*pad-lh-gap}}
+  else{ib={x:pad,y:pad,w:bw,h:H-2*pad-lh-gap};lb={x:pad,y:H-pad-lh,w:bw,h:lh}}
   const box=b=>{ctx.fillStyle='#fff';ctx.fillRect(b.x,b.y,b.w,b.h);ctx.strokeRect(b.x,b.y,b.w,b.h)};
   box(ib);
   if(img&&img.complete&&img.naturalWidth){
     ctx.imageSmoothingQuality='high';
     if(adj){
-      const b=imgBox(s,pos),r=Math.min(b.w/img.naturalWidth,b.h/img.naturalHeight)*adj.z,w=img.naturalWidth*r,h=img.naturalHeight*r;
+      const b=imgBox(W,H,pos),r=Math.min(b.w/img.naturalWidth,b.h/img.naturalHeight)*adj.z,w=img.naturalWidth*r,h=img.naturalHeight*r;
       ctx.save();ctx.beginPath();ctx.rect(b.x,b.y,b.w,b.h);ctx.clip();
       ctx.drawImage(img,b.x+b.w/2+adj.x*b.w-w/2,b.y+b.h/2+adj.y*b.h-h/2,w,h);ctx.restore();
       ctx.strokeRect(ib.x,ib.y,ib.w,ib.h);
@@ -518,15 +520,19 @@ function drawCard(ctx,s,img,label,color,pos,fit,adj){
     }
   }
 }
-function imgBox(s,pos){const pad=s*0.073,bw=s-2*pad,lh=s*0.173,gap=s*0.055,lw=Math.max(2,s*0.0115);let b;
-  if(pos==='none')b={x:pad,y:pad,w:bw,h:s-2*pad};else if(pos==='top')b={x:pad,y:pad+lh+gap,w:bw,h:s-2*pad-lh-gap};else b={x:pad,y:pad,w:bw,h:s-2*pad-lh-gap};
+function imgBox(W,H,pos){const u=Math.min(W,H),pad=u*0.073,bw=W-2*pad,lh=u*0.173,gap=u*0.055,lw=Math.max(2,u*0.0115);let b;
+  if(pos==='none')b={x:pad,y:pad,w:bw,h:H-2*pad};else if(pos==='top')b={x:pad,y:pad+lh+gap,w:bw,h:H-2*pad-lh-gap};else b={x:pad,y:pad,w:bw,h:H-2*pad-lh-gap};
   return{x:b.x+lw/2,y:b.y+lw/2,w:b.w-lw,h:b.h-lw}}
-function fillZ(img,pos){const b=imgBox(600,pos),W=img.naturalWidth,H=img.naturalHeight;return Math.max(b.w/W,b.h/H)/Math.min(b.w/W,b.h/H)}
+function fillZ(img,pos,w,h){const b=imgBox(600,600*(h||1)/(w||1),pos),W=img.naturalWidth,H=img.naturalHeight;return Math.max(b.w/W,b.h/H)/Math.min(b.w/W,b.h/H)}
+/* Tamaños: cada tarjeta mide w × h cm */
+const sizeTxt=(w,h)=>`${fmtCm(w)} × ${fmtCm(h)} cm`;
+const sizeFile=(w,h)=>w===h?`${fmtCm(w)}cm`:`${fmtCm(w)}x${fmtCm(h)}cm`;
+function sizeCanvas(k,w,h,base){if(h>=w){k.height=base;k.width=Math.round(base*w/h)}else{k.width=base;k.height=Math.round(base*h/w)}}
 const ZMIN=0.3,ZMAX=6,clampZ=z=>Math.min(ZMAX,Math.max(ZMIN,z));
 /* Arrastrar, pellizcar y rueda para colocar la foto dentro del recuadro */
 function attachAdjust(cvs,get,redraw){
   const pts=new Map();
-  const geo=()=>{const c=get(),r=cvs.getBoundingClientRect();return{c,k:cvs.width/r.width,b:imgBox(cvs.width,c?c.pos:'bottom')}};
+  const geo=()=>{const c=get(),r=cvs.getBoundingClientRect();return{c,k:cvs.width/r.width,b:imgBox(cvs.width,cvs.height,c?c.pos:'bottom')}};
   cvs.addEventListener('pointerdown',e=>{const{c}=geo();if(!c||!c.adj)return;e.preventDefault();cvs.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY})});
   cvs.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const{c,k,b}=geo();if(!c||!c.adj)return;
     const prev=new Map(pts);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
@@ -580,26 +586,35 @@ window.addEventListener('drop',e=>e.preventDefault());
 document.querySelectorAll('.upbtn').forEach(l=>l.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$(l.htmlFor).click()}}));
 
 /* ---------- Tool state ---------- */
-const st={id:null,img:null,src:null,label:'COMER',color:COLORS[1].c,cm:8,pos:'bottom',fit:'contain',adj:null,alts:[],q:'comer'};
+const st={id:null,img:null,src:null,label:'COMER',color:COLORS[1].c,w:8,h:8,pos:'bottom',fit:'contain',adj:null,alts:[],q:'comer'};
 const cv=$('cv'),cx=cv.getContext('2d');
-function render(){drawCard(cx,cv.width,st.img,st.label,st.color,st.pos,st.fit,st.src==='propia'?st.adj:null);
-  $('meta').textContent=`${fmtCm(st.cm)} × ${fmtCm(st.cm)} cm · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'elige un dibujo'}`;
+function render(){sizeCanvas(cv,st.w,st.h,600);drawCard(cx,cv.width,cv.height,st.img,st.label,st.color,st.pos,st.fit,st.src==='propia'?st.adj:null);
+  $('meta').textContent=`${sizeTxt(st.w,st.h)} · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'elige un dibujo'}`;
   ['pdf','png','add'].forEach(b=>$(b).disabled=!st.img);
   const own=st.src==='propia'&&!!st.adj;$('adj').hidden=!own;cv.classList.toggle('movable',own);
   if(own)$('zoom').value=Math.round(st.adj.z*100)}
 function chips(){
   colorChips($('colors'),st.color,c=>{st.color=c;chips();render()});
-  sizeChips($('sizes'),SIZES.map(o=>({v:o.cm,h:`${o.cm} cm <small>${o.t}</small>`})),st.cm,v=>{st.cm=v;$('cmc').value='';chips();render()});
+  sizeChips($('sizes'),SIZES.map(o=>({v:o.cm,h:`${o.cm} cm <small>${o.t}</small>`})),st.w===st.h?st.w:null,v=>{st.w=st.h=v;$('cmw').value=$('cmh').value='';chips();render()});
 }
 $('custom').oninput=e=>{st.color=e.target.value;chips();render()};
 $('label').oninput=e=>{st.label=e.target.value.toUpperCase();e.target.value=st.label;render()};
 $('pos').onchange=e=>{st.pos=e.target.value;render()};
 attachAdjust(cv,()=>st.src==='propia'?st:null,render);
 $('zoom').oninput=e=>{if(!st.adj)return;st.adj.z=clampZ(e.target.value/100);render()};
-document.querySelectorAll('.adjbtn').forEach(b=>b.onclick=()=>{if(!st.img||!st.adj)return;st.adj={z:b.dataset.adj==='fill'?fillZ(st.img,st.pos):1,x:0,y:0};render()});
-$('cmc').oninput=()=>{const v=numIn($('cmc'));if(v>=2&&v<=19){st.cm=Math.round(v*10)/10;chips();render()}};
-$('cmc').onchange=()=>{const v=numIn($('cmc'));if(isNaN(v))return;const c=Math.min(19,Math.max(2,Math.round(v*10)/10));
-  if(c!==v)toast('El tamaño va de 2 a 19 cm');$('cmc').value=fmtCm(c);st.cm=c;chips();render()};
+document.querySelectorAll('.adjbtn').forEach(b=>b.onclick=()=>{if(!st.img||!st.adj)return;st.adj={z:b.dataset.adj==='fill'?fillZ(st.img,st.pos,st.w,st.h):1,x:0,y:0};render()});
+/* Ancho × alto a medida. Si solo rellenas uno, la tarjeta es cuadrada */
+const r1=v=>Math.round(v*10)/10;
+function readDims(wEl,hEl,max,maxShort){let w=numIn(wEl),h=numIn(hEl);
+  if(isNaN(w)&&isNaN(h))return null;if(isNaN(w))w=h;if(isNaN(h))h=w;
+  w=r1(w);h=r1(h);if(w<2||h<2||w>max||h>max||Math.min(w,h)>maxShort)return{w,h,bad:true};return{w,h}}
+function cardDims(commit){const d=readDims($('cmw'),$('cmh'),27,19);if(!d)return;
+  if(d.bad){if(!commit)return;d.w=Math.min(27,Math.max(2,d.w));d.h=Math.min(27,Math.max(2,d.h));
+    if(Math.min(d.w,d.h)>19){if(d.w<=d.h)d.w=19;else d.h=19}
+    toast('Ajustado para que quepa en un A4: entre 2 y 27 cm, lado corto hasta 19');}
+  st.w=d.w;st.h=d.h;if(commit){if($('cmw').value)$('cmw').value=fmtCm(d.w);if($('cmh').value)$('cmh').value=fmtCm(d.h)}
+  if(st.adj&&st.img)st.adj.z=clampZ(Math.max(st.adj.z,1));chips();render()}
+['cmw','cmh'].forEach(id=>{$(id).oninput=()=>cardDims(false);$(id).onchange=()=>cardDims(true)});
 
 async function pick(id,btn){
   document.querySelectorAll('#results .res').forEach(r=>r.classList.remove('on'));btn&&btn.classList.add('on');
@@ -625,7 +640,7 @@ $('sform').onsubmit=e=>{e.preventDefault();search($('q').value)};
 
 async function useOwn(file){
   try{const img=await readImage(file);
-    st.img=img;st.src='propia';st.id='propia';st.adj={z:fillZ(img,st.pos),x:0,y:0};
+    st.img=img;st.src='propia';st.id='propia';st.adj={z:fillZ(img,st.pos,st.w,st.h),x:0,y:0};
     document.querySelectorAll('#results .res').forEach(r=>r.classList.remove('on'));
     $('snote').textContent='Imagen cargada. Colócala a tu gusto en la tarjeta y escribe el texto en el paso 2.';
     render();$('label').focus();$('label').select();
@@ -642,19 +657,24 @@ document.addEventListener('paste',e=>{
 const CREDIT='Pictogramas: Sergio Palao. Origen: ARASAAC (arasaac.org). Licencia CC BY-NC-SA. Propiedad: Gobierno de Aragón.';
 const MADE='Hecho con Manu en clase · Manolo Castillo Redondo · Instagram @manuenclase';
 function stampPages(doc,W,H,ara){const np=doc.getNumberOfPages();for(let p=1;p<=np;p++){doc.setPage(p);doc.setFontSize(7);doc.setTextColor(120);if(ara){doc.text(CREDIT,W/2,H-0.5,{align:'center'});doc.text(MADE,W/2,H-0.2,{align:'center'})}else doc.text(MADE,W/2,H-0.5,{align:'center'})}}
-function cardCanvas(c){const s=PX(c.cm),k=document.createElement('canvas');k.width=k.height=s;drawCard(k.getContext('2d'),s,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
+function cardCanvas(c){const k=document.createElement('canvas');k.width=PX(c.w);k.height=PX(c.h);drawCard(k.getContext('2d'),k.width,k.height,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
 function slug(t){return (t||'tarjeta').toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'').slice(0,60)||'tarjeta'}
 function save(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;document.body.appendChild(a);a.click();setTimeout(()=>{URL.revokeObjectURL(a.href);a.remove()},1500)}
-$('png').onclick=()=>{cardCanvas(st).toBlob(b=>{save(b,`${slug(st.label)}_${fmtCm(st.cm)}cm.png`);toast('PNG descargado')},'image/png')};
+$('png').onclick=()=>{cardCanvas(st).toBlob(b=>{save(b,`${slug(st.label)}_${sizeFile(st.w,st.h)}.png`);toast('PNG descargado')},'image/png')};
 $('pdf').onclick=()=>{
-  const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'cm',format:'a4'});
+  const {jsPDF}=window.jspdf;const cw=st.w,ch=st.h,m=1,g=0.4;
+  const n=Math.max(1,Math.min(60,parseInt($('copies').value)||1));
+  const fitIn=(W,H)=>{const c=Math.floor((W-2*m+g)/(cw+g)),r=Math.floor((H-2*m-0.6+g)/(ch+g));return{c,r,per:c*r}};
+  const P=fitIn(21,29.7),Ls=fitIn(29.7,21);
+  const land=P.per<1||(n>1&&Ls.per>P.per);
+  const W=land?29.7:21,H=land?21:29.7,F=land?Ls:P;
+  const doc=new jsPDF({unit:'cm',format:'a4',orientation:land?'landscape':'portrait'});
   const data=cardCanvas(st).toDataURL('image/png');
-  const n=Math.max(1,Math.min(60,parseInt($('copies').value)||1)),m=1,g=0.4,W=21,H=29.7,s=st.cm;
-  const cols=Math.max(1,Math.floor((W-2*m+g)/(s+g))),rows=Math.max(1,Math.floor((H-2*m+g)/(s+g))),per=cols*rows;
-  const x0=(W-(cols*s+(cols-1)*g))/2;
-  for(let i=0;i<n;i++){if(i&&i%per===0)doc.addPage();const k=i%per;doc.addImage(data,'PNG',x0+(k%cols)*(s+g),m+Math.floor(k/cols)*(s+g),s,s)}
+  const cols=Math.max(1,F.c),rows=Math.max(1,F.r),per=cols*rows;
+  const x0=(W-(cols*cw+(cols-1)*g))/2;
+  for(let i=0;i<n;i++){if(i&&i%per===0)doc.addPage();const k=i%per;doc.addImage(data,'PNG',x0+(k%cols)*(cw+g),m+Math.floor(k/cols)*(ch+g),cw,ch)}
   stampPages(doc,W,H,st.src==='arasaac');
-  doc.save(`${slug(st.label)}_${fmtCm(st.cm)}cm.pdf`);toast('PDF descargado');
+  doc.save(`${slug(st.label)}_${sizeFile(cw,ch)}.pdf`);toast('PDF descargado');
 };
 
 /* ---------- Frase ---------- */
@@ -662,11 +682,11 @@ const frase=[];let sel=-1;let fsize='auto';
 const FS=[{v:'auto',h:'Ajustar'},{v:5,h:'5 cm'},{v:8,h:'8 cm'},{v:12,h:'12 cm'}];
 const L={W:29.7,H:21,m:1,foot:0.6};
 const gapFor=s=>s>=10?0.5:0.3;
-function fraseSize(){if(fsize!=='auto')return fsize;const n=frase.length||1,g=0.3;return Math.max(4,Math.min(8,(L.W-2*L.m-(n-1)*g)/n))}
-function fraseLayout(){const s=fraseSize(),g=gapFor(s);
-  const cols=Math.max(1,Math.floor((L.W-2*L.m+g)/(s+g))),rowsPer=Math.max(1,Math.floor((L.H-2*L.m-L.foot+g)/(s+g)));
-  const nRows=Math.max(1,Math.ceil(frase.length/cols));return{s,g,cols,rowsPer,nRows,pages:Math.ceil(nRows/rowsPer)}}
-function itemCanvas(c){const k=document.createElement('canvas');k.width=k.height=300;drawCard(k.getContext('2d'),300,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
+function fraseSize(){if(fsize!=='auto')return fsize;const n=frase.length||1,g=0.3,s=Math.max(4,Math.min(8,(L.W-2*L.m-(n-1)*g)/n));return{w:s,h:s}}
+function fraseLayout(){const{w,h}=fraseSize(),g=gapFor(Math.min(w,h));
+  const cols=Math.max(1,Math.floor((L.W-2*L.m+g)/(w+g))),rowsPer=Math.max(1,Math.floor((L.H-2*L.m-L.foot+g)/(h+g)));
+  const nRows=Math.max(1,Math.ceil(frase.length/cols));return{w,h,g,cols,rowsPer,nRows,pages:Math.ceil(nRows/rowsPer)}}
+function itemCanvas(c){const k=document.createElement('canvas'),z=fraseSize();k.width=300;k.height=Math.round(300*z.h/z.w);drawCard(k.getContext('2d'),k.width,k.height,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
 function drawFrase(){
   const F=$('frase');F.innerHTML='';
   if(!frase.length)F.innerHTML='<p class="empty">Escribe una frase arriba y pulsa «Crear frase». También puedes crear una tarjeta en la herramienta 1 y pulsar «Añadir a la frase».</p>';
@@ -682,29 +702,30 @@ function drawFrase(){
      ['✕','Quitar',()=>{frase.splice(i,1);if(sel===i)closeEd();else{if(sel>i)sel--;if(sel>=0)openEd(sel);else drawFrase()}}]]
      .forEach(([t,l,f])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-label',l);b.onclick=f;ctl.appendChild(b)});
     d.appendChild(ctl);F.appendChild(d)});
-  sizeChips($('fsizes'),FS,fsize,v=>{fsize=v;$('fcm').value='';drawFrase()});
+  sizeChips($('fsizes'),FS,fsize==='auto'?'auto':(fsize.w===fsize.h?fsize.w:null),v=>{fsize=v==='auto'?'auto':{w:v,h:v};$('fw').value=$('fh').value='';drawFrase()});
   const Lo=fraseLayout();
-  $('fnote').textContent=frase.length?`${frase.length} tarjeta${frase.length>1?'s':''} de ${fmtCm(Lo.s)} cm · ${Lo.nRows} fila${Lo.nRows>1?'s':''} · ${Lo.pages} página${Lo.pages>1?'s':''} A4`:'';
+  $('fnote').textContent=frase.length?`${frase.length} tarjeta${frase.length>1?'s':''} de ${sizeTxt(Lo.w,Lo.h)} · ${Lo.nRows} fila${Lo.nRows>1?'s':''} · ${Lo.pages} página${Lo.pages>1?'s':''} A4`:'';
   $('fpdf').disabled=$('fclear').disabled=!frase.length||frase.some(c=>c.loading);
 }
-$('fcm').oninput=()=>{const v=numIn($('fcm'));if(v>=2&&v<=18){fsize=Math.round(v*10)/10;drawFrase()}};
-$('fcm').onchange=()=>{const v=numIn($('fcm'));if(isNaN(v))return;const c=Math.min(18,Math.max(2,Math.round(v*10)/10));
-  if(c!==v)toast('En la frase el tamaño va de 2 a 18 cm');$('fcm').value=fmtCm(c);fsize=c;drawFrase()};
+function fraseDims(commit){let w=numIn($('fw')),h=numIn($('fh'));if(isNaN(w)&&isNaN(h))return;if(isNaN(w))w=h;if(isNaN(h))h=w;w=r1(w);h=r1(h);
+  const ok=w>=2&&h>=2&&w<=27&&h<=18;if(!ok){if(!commit)return;w=Math.min(27,Math.max(2,w));h=Math.min(18,Math.max(2,h));toast('En la frase (A4 horizontal): ancho de 2 a 27 cm y alto de 2 a 18 cm')}
+  fsize={w,h};if(commit){if($('fw').value)$('fw').value=fmtCm(w);if($('fh').value)$('fh').value=fmtCm(h)}drawFrase();if(sel>=0)edAdjust()}
+['fw','fh'].forEach(id=>{$(id).oninput=()=>fraseDims(false);$(id).onchange=()=>fraseDims(true)});
 
 $('add').onclick=()=>{frase.push({label:st.label,img:st.img,id:st.src==='arasaac'?st.id:null,src:st.src,color:st.color,pos:st.pos,fit:st.fit,adj:st.adj?{...st.adj}:null,alts:[...st.alts],q:st.q});
   drawFrase();toast(`«${st.label}» añadida a la frase`)};
 $('fclear').onclick=()=>{frase.length=0;closeEd()};
 $('fpdf').onclick=()=>{
   const {jsPDF}=window.jspdf;const doc=new jsPDF({unit:'cm',format:'a4',orientation:'landscape'});
-  const Lo=fraseLayout(),{s,g,cols,rowsPer}=Lo;
-  const fullW=cols*s+(cols-1)*g;
+  const Lo=fraseLayout(),{w,h,g,cols,rowsPer}=Lo;
+  const fullW=cols*w+(cols-1)*g;
   for(let r=0;r<Lo.nRows;r++){
     const pr=r%rowsPer;if(r&&pr===0)doc.addPage();
-    const pageRows=Math.min(rowsPer,Lo.nRows-(r-pr));const blockH=pageRows*s+(pageRows-1)*g;
-    const y=(L.H-L.foot-blockH)/2+pr*(s+g);
+    const pageRows=Math.min(rowsPer,Lo.nRows-(r-pr));const blockH=pageRows*h+(pageRows-1)*g;
+    const y=(L.H-L.foot-blockH)/2+pr*(h+g);
     const row=frase.slice(r*cols,(r+1)*cols);
-    let x=Lo.nRows>1?(L.W-fullW)/2:(L.W-(row.length*s+(row.length-1)*g))/2;
-    row.forEach(c=>{doc.addImage(cardCanvas({...c,cm:s}).toDataURL('image/png'),'PNG',x,y,s,s);x+=s+g});
+    let x=Lo.nRows>1?(L.W-fullW)/2:(L.W-(row.length*w+(row.length-1)*g))/2;
+    row.forEach(c=>{doc.addImage(cardCanvas({...c,w,h}).toDataURL('image/png'),'PNG',x,y,w,h);x+=w+g});
   }
   stampPages(doc,L.W,L.H,frase.some(c=>c.src==='arasaac'));
   doc.save(`frase_${slug(frase.map(c=>c.label).join(' '))}.pdf`);toast('Frase descargada');
@@ -802,7 +823,7 @@ function edAlts(){
     R.appendChild(b)});
 }
 async function edOwn(file){const c=frase[sel];if(!c)return;
-  try{c.img=await readImage(file);c.src='propia';c.id=null;c.adj={z:fillZ(c.img,c.pos),x:0,y:0};$('ednote').textContent='Imagen puesta. Colócala a tu gusto arrastrándola.';edAlts();edAdjust();drawFrase()}
+  try{c.img=await readImage(file);c.src='propia';c.id=null;{const z=fraseSize();c.adj={z:fillZ(c.img,c.pos,z.w,z.h),x:0,y:0}}$('ednote').textContent='Imagen puesta. Colócala a tu gusto arrastrándola.';edAlts();edAdjust();drawFrase()}
   catch(e){$('ednote').textContent=IMGERR}}
 $('edlabel').oninput=e=>{const c=frase[sel];if(!c)return;c.label=e.target.value.toUpperCase();e.target.value=c.label;edAdjust();drawFrase()};
 $('edsform').onsubmit=async e=>{e.preventDefault();const c=frase[sel];if(!c)return;const q=$('edq').value.trim();if(!q)return;
@@ -812,11 +833,11 @@ $('edsform').onsubmit=async e=>{e.preventDefault();const c=frase[sel];if(!c)retu
 $('edfile').onchange=e=>{const f=e.target.files[0];if(f)edOwn(f);e.target.value=''};
 const edcv=$('edcv');
 function edAdjust(){const c=frase[sel],own=!!(c&&c.src==='propia'&&c.img&&c.adj);$('edadj').hidden=!own;edcv.classList.toggle('movable',own);if(!own)return;
-  drawCard(edcv.getContext('2d'),edcv.width,c.img,c.label,c.color,c.pos,c.fit,c.adj);$('edzoom').value=Math.round(c.adj.z*100)}
+  {const z=fraseSize();sizeCanvas(edcv,z.w,z.h,400)}drawCard(edcv.getContext('2d'),edcv.width,edcv.height,c.img,c.label,c.color,c.pos,c.fit,c.adj);$('edzoom').value=Math.round(c.adj.z*100)}
 let edT=0;const edRedraw=()=>{edAdjust();clearTimeout(edT);edT=setTimeout(drawFrase,120)};
 attachAdjust(edcv,()=>{const c=frase[sel];return c&&c.src==='propia'?c:null},edRedraw);
 $('edzoom').oninput=e=>{const c=frase[sel];if(!c||!c.adj)return;c.adj.z=clampZ(e.target.value/100);edRedraw()};
-document.querySelectorAll('.edadjbtn').forEach(b=>b.onclick=()=>{const c=frase[sel];if(!c||!c.img||!c.adj)return;c.adj={z:b.dataset.adj==='fill'?fillZ(c.img,c.pos):1,x:0,y:0};edRedraw()});
+document.querySelectorAll('.edadjbtn').forEach(b=>b.onclick=()=>{const c=frase[sel];if(!c||!c.img||!c.adj)return;const z=fraseSize();c.adj={z:b.dataset.adj==='fill'?fillZ(c.img,c.pos,z.w,z.h):1,x:0,y:0};edRedraw()});
 $('edclose').onclick=closeEd;
 dropZone($('eddrop'),edOwn);
 
