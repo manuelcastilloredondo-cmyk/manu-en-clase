@@ -351,7 +351,7 @@ footer p{margin:0 0 8px}
           <button class="btn sec mini adjbtn bg-wand" type="button" aria-pressed="false">🪄 Borrar tocando</button>
           <button class="btn sec mini adjbtn bg-undo" type="button">↶ Deshacer</button>
           <label class="tol">Sensibilidad <input type="range" class="bg-tol" min="5" max="80" value="25" aria-label="Sensibilidad del borrado"></label>
-          <p class="note bg-note">«Quitar fondo» usa inteligencia artificial en tu propio dispositivo: la foto no se envía a ningún sitio. La primera vez descarga la IA (unos 115 MB, mejor con wifi) y después va mucho más rápido. Con «Borrar tocando» limpias a mano lo que quede.</p>
+          <p class="note bg-note">«Quitar fondo» usa inteligencia artificial en tu propio dispositivo: la foto no se envía a ningún sitio. La primera vez descarga la IA (unos 46 MB, mejor con wifi); después queda guardada y va más rápido. Con «Borrar tocando» limpias a mano lo que quede.</p>
         </div>
       </div>
       <p class="meta" id="meta"></p>
@@ -425,7 +425,7 @@ footer p{margin:0 0 8px}
           <button class="btn sec mini adjbtn bg-wand" type="button" aria-pressed="false">🪄 Borrar tocando</button>
           <button class="btn sec mini adjbtn bg-undo" type="button">↶ Deshacer</button>
           <label class="tol">Sensibilidad <input type="range" class="bg-tol" min="5" max="80" value="25" aria-label="Sensibilidad del borrado"></label>
-          <p class="note bg-note">«Quitar fondo» usa inteligencia artificial en tu propio dispositivo: la foto no se envía a ningún sitio. La primera vez descarga la IA (unos 115 MB, mejor con wifi) y después va mucho más rápido. Con «Borrar tocando» limpias a mano lo que quede.</p>
+          <p class="note bg-note">«Quitar fondo» usa inteligencia artificial en tu propio dispositivo: la foto no se envía a ningún sitio. La primera vez descarga la IA (unos 46 MB, mejor con wifi); después queda guardada y va más rápido. Con «Borrar tocando» limpias a mano lo que quede.</p>
         </div>
         </div>
       </div>
@@ -619,45 +619,57 @@ function whiten(img,seeds,tol){return new Promise(ok=>{
     const px=k%W;const e=(px>0&&mask[k-1])||(px<W-1&&mask[k+1])||(k>=W&&mask[k-W])||(k<N-W&&mask[k+W]);
     if(e){d[i]=(d[i]+255)>>1;d[i+1]=(d[i+1]+255)>>1;d[i+2]=(d[i+2]+255)>>1}}
   x.putImageData(id,0,0);const o=new Image();o.onload=()=>ok(o);o.src=c.toDataURL('image/jpeg',0.92)})}
-/* Recorte con IA (BiRefNet, licencia MIT) que se ejecuta en un worker dentro del navegador */
+/* Recorte con IA: modelo ISNet (licencia Apache-2.0) comprimido a 8 bits y alojado en esta web.
+   Se ejecuta en un worker con ONNX Runtime Web: la foto nunca sale del dispositivo. */
+const AI_BASE=new URL('ia/',location.href).href, AI_TOTAL=46360717;
 const AI_WORKER=`
-import {AutoModel,AutoProcessor,RawImage,env} from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6';
-env.allowLocalModels=false;
-const ID='onnx-community/BiRefNet_lite-ONNX';
-let model=null,processor=null;
-async function load(){if(model)return;
-  let gpu=false;try{gpu=!!(self.navigator&&navigator.gpu&&await navigator.gpu.requestAdapter())}catch(e){}
-  const cb={progress_callback:p=>{if(p.status==='progress'&&p.file&&/\.onnx/.test(p.file))postMessage({type:'progress',v:p.progress||0})}};
-  const tries=gpu?[{device:'webgpu',dtype:'fp16'},{device:'wasm',dtype:'fp16'},{device:'wasm',dtype:'fp32'}]:[{device:'wasm',dtype:'fp16'},{device:'wasm',dtype:'fp32'}];
-  let err=null;for(const t of tries){try{model=await AutoModel.from_pretrained(ID,{...cb,...t});postMessage({type:'device',v:t.device+'/'+t.dtype});break}catch(e){err=e;model=null}}
-  if(!model)throw err||new Error('modelo');
-  processor=await AutoProcessor.from_pretrained(ID)}
-onmessage=async e=>{try{await load();postMessage({type:'status'});
-  const {data,w,h}=e.data;const img=new RawImage(new Uint8ClampedArray(data),w,h,4).rgb();
-  const {pixel_values}=await processor(img);
-  const out=await model({input_image:pixel_values});
-  const t=out.output_image||Object.values(out)[0];
-  const mask=await RawImage.fromTensor(t[0].sigmoid().mul(255).to('uint8')).resize(w,h);
-  postMessage({type:'done',mask:mask.data,w,h},[mask.data.buffer]);
+import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.wasm.min.mjs';
+ort.env.wasm.wasmPaths='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
+let sess=null;
+async function getModel(base,total){
+  const key=base+'isnet_q8.onnx';let cache=null;
+  try{cache=await caches.open('manuenclase-ia-v1');const hit=await cache.match(key);if(hit)return new Uint8Array(await hit.arrayBuffer())}catch(e){}
+  const buf=new Uint8Array(total);let off=0;
+  for(const part of ['isnet_q8.p1','isnet_q8.p2','isnet_q8.p3','isnet_q8.p4','isnet_q8.p5']){
+    const r=await fetch(base+part);if(!r.ok)throw new Error('descarga '+r.status);
+    const rd=r.body.getReader();for(;;){const {done,value}=await rd.read();if(done)break;buf.set(value,off);off+=value.length;postMessage({type:'progress',v:off*100/total})}}
+  if(off!==total)throw new Error('modelo incompleto');
+  try{if(cache)await cache.put(key,new Response(buf))}catch(e){}
+  return buf}
+onmessage=async e=>{try{
+  if(!sess){const m=await getModel(e.data.base,e.data.total);postMessage({type:'status',v:'init'});sess=await ort.InferenceSession.create(m,{executionProviders:['wasm'],graphOptimizationLevel:'all'})}
+  postMessage({type:'status',v:'run'});
+  const d=e.data.data,S=1024,N=S*S,x=new Float32Array(3*N);
+  for(let k=0,i=0;k<N;k++,i+=4){x[k]=d[i]/255-0.5;x[k+N]=d[i+1]/255-0.5;x[k+2*N]=d[i+2]/255-0.5}
+  const out=await sess.run({[sess.inputNames[0]]:new ort.Tensor('float32',x,[1,3,S,S])});
+  const o=out[sess.outputNames[0]].data;let mn=Infinity,mx=-Infinity;for(let k=0;k<N;k++){const v=o[k];if(v<mn)mn=v;if(v>mx)mx=v}
+  const mask=new Uint8ClampedArray(N),sc=255/((mx-mn)||1);for(let k=0;k<N;k++)mask[k]=(o[k]-mn)*sc;
+  postMessage({type:'done',mask},[mask.buffer]);
 }catch(err){postMessage({type:'error',v:String((err&&err.message)||err)})}};`;
 let aiW=null;
 function aiWorker(){if(!aiW)aiW=new Worker(URL.createObjectURL(new Blob([AI_WORKER],{type:'text/javascript'})),{type:'module'});return aiW}
 function aiCut(img,onStatus){return new Promise((ok,ko)=>{
-  const W=img.naturalWidth,H=img.naturalHeight,r=Math.min(1,1600/Math.max(W,H)),w=Math.round(W*r),h=Math.round(H*r);
+  const W=img.naturalWidth,H=img.naturalHeight,r=Math.min(1,2000/Math.max(W,H)),w=Math.round(W*r),h=Math.round(H*r),S=1024;
   const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);
-  const src=x.getImageData(0,0,w,h),copy=new Uint8ClampedArray(src.data);
+  const src=x.getImageData(0,0,w,h);
+  const q=document.createElement('canvas');q.width=q.height=S;const qx=q.getContext('2d',{willReadFrequently:true});qx.drawImage(img,0,0,S,S);
+  const inp=qx.getImageData(0,0,S,S).data;
   let wk;try{wk=aiWorker()}catch(e){return ko(e)}
-  const timer=setTimeout(()=>ko(new Error('tiempo')),300000);
+  const timer=setTimeout(()=>ko(new Error('tiempo')),240000);
   wk.onerror=e=>{clearTimeout(timer);aiW=null;ko(new Error(e.message||'worker'))};
   wk.onmessage=e=>{const m=e.data;
-    if(m.type==='progress')onStatus(`Descargando la IA… ${Math.round(m.v)} % (solo la primera vez)`);
-    else if(m.type==='status')onStatus('Recortando la foto…');
+    if(m.type==='progress')onStatus(`Descargando la IA… ${Math.min(100,Math.round(m.v))} % (solo la primera vez)`);
+    else if(m.type==='status')onStatus(m.v==='init'?'Preparando la IA…':'Recortando la foto… (unos segundos)');
     else if(m.type==='error'){clearTimeout(timer);ko(new Error(m.v))}
-    else if(m.type==='done'){clearTimeout(timer);const mk=m.mask,d=src.data;
-      for(let k=0,i=0;k<mk.length;k++,i+=4){let a=(mk[k]/255-0.08)/0.84;a=a<0?0:a>1?1:a;
-        d[i]=copy[i]*a+255*(1-a);d[i+1]=copy[i+1]*a+255*(1-a);d[i+2]=copy[i+2]*a+255*(1-a);d[i+3]=255}
+    else if(m.type==='done'){clearTimeout(timer);
+      const mi=new ImageData(S,S);for(let k=0,i=0;k<S*S;k++,i+=4){mi.data[i+3]=m.mask[k]}
+      const mc=document.createElement('canvas');mc.width=mc.height=S;mc.getContext('2d').putImageData(mi,0,0);
+      const up=document.createElement('canvas');up.width=w;up.height=h;const ux=up.getContext('2d',{willReadFrequently:true});ux.imageSmoothingQuality='high';ux.drawImage(mc,0,0,w,h);
+      const al=ux.getImageData(0,0,w,h).data,d=src.data;
+      for(let i=0;i<d.length;i+=4){let a=(al[i+3]/255-0.08)/0.84;a=a<0?0:a>1?1:a;
+        d[i]=d[i]*a+255*(1-a);d[i+1]=d[i+1]*a+255*(1-a);d[i+2]=d[i+2]*a+255*(1-a);d[i+3]=255}
       x.putImageData(src,0,0);const o=new Image();o.onload=()=>ok(o);o.src=c.toDataURL('image/jpeg',0.92)}};
-  wk.postMessage({data:copy.slice().buffer,w,h})})}
+  wk.postMessage({data:inp,base:AI_BASE,total:AI_TOTAL},[inp.buffer])})}
 function borderSeeds(img){const W=img.naturalWidth,H=img.naturalHeight,s=[],st=Math.max(1,Math.round(Math.min(W,H)/300));
   for(let x=0;x<W;x+=st){s.push([x,0],[x,H-1])}for(let y=0;y<H;y+=st){s.push([0,y],[W-1,y])}return s}
 function canvasToImage(cvs,c,e){const r=cvs.getBoundingClientRect(),k=cvs.width/r.width,px=(e.clientX-r.left)*k,py=(e.clientY-r.top)*k;
