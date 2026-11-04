@@ -626,14 +626,22 @@ const AI_WORKER=`
 import * as ort from 'https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/ort.wasm.min.mjs';
 ort.env.wasm.wasmPaths='https://cdn.jsdelivr.net/npm/onnxruntime-web@1.20.1/dist/';
 let sess=null;
+const CDN='https://cdn.jsdelivr.net/gh/manuelcastilloredondo-cmyk/manu-en-clase@main/ia/';
 async function getModel(base,total){
   const key=base+'isnet_q8.onnx';let cache=null;
   try{cache=await caches.open('manuenclase-ia-v1');const hit=await cache.match(key);if(hit)return new Uint8Array(await hit.arrayBuffer())}catch(e){}
-  const buf=new Uint8Array(total);let off=0;
-  for(const part of ['isnet_q8.p1','isnet_q8.p2','isnet_q8.p3','isnet_q8.p4','isnet_q8.p5']){
-    const r=await fetch(base+part);if(!r.ok)throw new Error('descarga '+r.status);
-    const rd=r.body.getReader();for(;;){const {done,value}=await rd.read();if(done)break;buf.set(value,off);off+=value.length;postMessage({type:'progress',v:off*100/total})}}
-  if(off!==total)throw new Error('modelo incompleto');
+  const PART=9272144,parts=['isnet_q8.p1','isnet_q8.p2','isnet_q8.p3','isnet_q8.p4','isnet_q8.p5'];
+  const buf=new Uint8Array(total),got=new Array(parts.length).fill(0);let last=0;
+  const tick=()=>{const t=got.reduce((a,b)=>a+b,0),now=Date.now();if(now-last>250||t===total){last=now;postMessage({type:'progress',v:t*100/total})}};
+  async function one(i){
+    for(const src of [CDN,base]){
+      try{const r=await fetch(src+parts[i]);if(!r.ok)throw new Error(String(r.status));
+        let off=i*PART;got[i]=0;const rd=r.body.getReader();
+        for(;;){const {done,value}=await rd.read();if(done)break;buf.set(value,off);off+=value.length;got[i]+=value.length;tick()}
+        if(got[i]!==Math.min(PART,total-i*PART))throw new Error('incompleta');return}
+      catch(e){got[i]=0}}
+    throw new Error('descarga')}
+  await Promise.all(parts.map((_,i)=>one(i)));
   try{if(cache)await cache.put(key,new Response(buf))}catch(e){}
   return buf}
 onmessage=async e=>{try{
