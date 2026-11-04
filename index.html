@@ -172,6 +172,27 @@ input:focus,select:focus{border-color:var(--azur);outline:none}
 .fsize .chip{padding:6px 12px}
 .frase-bar{row-gap:14px}
 .dims{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.bgtools{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;border-top:1px dashed #cbd6ea;padding-top:10px}
+.bgtools .note{flex:1 1 100%;margin:0}
+.tol{display:flex;gap:8px;align-items:center;font-size:.9rem;color:#3b4670;flex:1 1 200px}
+.tol input{flex:1 1 100px;accent-color:var(--azur);min-width:0}
+.bg-wand[aria-pressed="true"]{background:var(--azur)!important;color:#fff!important;box-shadow:none!important}
+canvas.wand{cursor:crosshair!important}
+.lib{margin:6px 0 18px;border:2px solid #e3e9f5;border-radius:10px;padding:12px 14px}
+.lib summary{cursor:pointer;display:flex;gap:10px;align-items:center;list-style:none}
+.lib summary::-webkit-details-marker{display:none}
+.lib .note{margin:8px 0}
+.libgrid{display:grid;grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:12px}
+.libitem{display:flex;flex-direction:column;gap:4px;align-items:center}
+.libitem .fpick canvas{width:100%;height:auto;max-width:120px}
+.libitem .ctl{display:flex;gap:4px}
+.libitem .ctl button{appearance:none;border:2px solid #cbd6ea;background:#fff;border-radius:6px;height:30px;padding:0 8px;cursor:pointer;font-weight:700;font-size:.8rem;color:var(--tinta)}
+.libitem .ctl button.danger{border-color:#b3261e;color:#b3261e}
+.libbar{margin-top:12px}
+.cammodal{position:fixed;inset:0;z-index:60;background:rgba(8,11,29,.88);display:grid;place-items:center;padding:16px}
+.cambox{background:#fff;border-radius:12px;padding:14px;width:min(720px,100%);display:flex;flex-direction:column;gap:10px}
+.cambox video{width:100%;max-height:65vh;background:#000;border-radius:8px;object-fit:contain}
+.camrow{justify-content:center}
 .dims input{flex:0 0 auto;width:84px}
 .adjust{display:flex;flex-direction:column;gap:8px}
 .adjust .note{margin:0}
@@ -283,9 +304,11 @@ footer p{margin:0 0 8px}
         <div class="results" id="results" aria-live="polite"></div>
         <p class="note" id="snote"></p>
         <div class="upload" id="drop">
-          <label class="btn lt upbtn" for="file" tabindex="0">📷 Subir mi imagen</label>
+          <label class="btn lt upbtn" for="file" tabindex="0">🖼️ Subir imagen</label>
+          <button class="btn lt upbtn camb" type="button" data-target="main">📸 Sacar foto</button>
           <input type="file" id="file" accept="image/*" class="sr">
-          <span class="note">Desde el móvil o la tablet puedes hacer una foto. En el ordenador, arrastra la imagen aquí o pégala con Ctrl+V. La imagen no sale de tu dispositivo.</span>
+          <input type="file" id="cam" accept="image/*" capture="environment" class="sr">
+          <span class="note">En el ordenador también puedes arrastrar la imagen aquí o pegarla con Ctrl+V. La imagen no sale de tu dispositivo.</span>
           
         </div>
       </div>
@@ -322,13 +345,22 @@ footer p{margin:0 0 8px}
           <button class="btn sec mini adjbtn" type="button" data-adj="fit">Encajar</button>
           <button class="btn sec mini adjbtn" type="button" data-adj="fill">Llenar</button>
         </div>
+        <div class="bgtools" data-for="main">
+          <span class="lab2">Fondo</span>
+          <button class="btn sec mini adjbtn bg-auto" type="button">✨ Quitar fondo</button>
+          <button class="btn sec mini adjbtn bg-wand" type="button" aria-pressed="false">🪄 Borrar tocando</button>
+          <button class="btn sec mini adjbtn bg-undo" type="button">↶ Deshacer</button>
+          <label class="tol">Sensibilidad <input type="range" class="bg-tol" min="5" max="80" value="25" aria-label="Sensibilidad del borrado"></label>
+          <p class="note bg-note">Quitar fondo pone en blanco lo que rodea al objeto. Funciona mejor con fondos lisos (pared, mesa, folio). Con «Borrar tocando», toca en la foto las zonas que quieras dejar en blanco.</p>
+        </div>
       </div>
       <p class="meta" id="meta"></p>
       <div class="copies"><label for="copies">Copias en el PDF</label><input type="number" id="copies" min="1" max="60" value="1"></div>
       <div class="actions">
         <button class="btn pri" id="pdf" type="button">Descargar PDF</button>
         <button class="btn lt" id="png" type="button" style="box-shadow:inset 0 0 0 2px var(--tinta)">Descargar PNG</button>
-        <button class="btn sec full" id="add" type="button" style="color:var(--rey);box-shadow:inset 0 0 0 2px var(--rey)">+ Añadir a la frase</button>
+        <button class="btn sec" id="add" type="button" style="color:var(--rey);box-shadow:inset 0 0 0 2px var(--rey)">+ Añadir a la frase</button>
+        <button class="btn sec" id="save" type="button" style="color:var(--rey);box-shadow:inset 0 0 0 2px var(--rey)">★ Guardar en Mis pictos</button>
       </div>
     </div>
   </div>
@@ -346,10 +378,22 @@ footer p{margin:0 0 8px}
     <div class="qopts">
       <label class="ck"><input type="checkbox" id="qgroup" checked> Unir artículos y preposiciones a la palabra siguiente</label>
       <label class="ck"><input type="checkbox" id="qappend"> Añadir al final de la frase actual</label>
+      <label class="ck"><input type="checkbox" id="qlib" checked> Usar primero Mis pictos</label>
     </div>
     <p class="note">Para decidir tú los bloques, sepáralos con «/»: voy / al colegio / en guagua</p>
 
     <div class="frase" id="frase"></div>
+
+    <details class="lib" id="lib" open>
+      <summary><span class="lab2">★ Mis pictos</span> <span class="note" id="libcount"></span></summary>
+      <p class="note">Toca un picto para añadirlo a la frase. Se guardan en este dispositivo y navegador; para llevarlos a otro, usa Exportar e Importar.</p>
+      <div class="libgrid" id="libgrid"></div>
+      <div class="row libbar">
+        <button class="btn sec mini adjbtn" type="button" id="libexp">Exportar</button>
+        <label class="btn sec mini adjbtn" for="libimp" tabindex="0">Importar</label>
+        <input type="file" id="libimp" accept="application/json,.json" class="sr">
+      </div>
+    </details>
 
     <div class="editor" id="ed" hidden>
       <div class="ed-head"><strong id="edtitle">Editar tarjeta</strong><button class="btn sec mini adjbtn" id="edclose" type="button">Cerrar</button></div>
@@ -360,8 +404,10 @@ footer p{margin:0 0 8px}
       <div class="results" id="edres"></div>
       <p class="note" id="ednote"></p>
       <div class="upload" id="eddrop">
-        <label class="btn lt upbtn" for="edfile" tabindex="0">📷 Subir mi imagen</label>
+        <label class="btn lt upbtn" for="edfile" tabindex="0">🖼️ Subir imagen</label>
+        <button class="btn lt upbtn camb" type="button" data-target="ed">📸 Sacar foto</button>
         <input type="file" id="edfile" accept="image/*" class="sr">
+        <button class="btn lt upbtn" type="button" id="edsave">★ Guardar en Mis pictos</button>
       </div>
       <div class="ed-adjust" id="edadj" hidden>
         <canvas id="edcv" width="400" height="400" tabindex="0" aria-label="Ajusta la foto: arrastra para moverla"></canvas>
@@ -373,6 +419,14 @@ footer p{margin:0 0 8px}
             <button class="btn sec mini edadjbtn" type="button" data-adj="fit">Encajar</button>
             <button class="btn sec mini edadjbtn" type="button" data-adj="fill">Llenar</button>
           </div>
+        <div class="bgtools" data-for="ed">
+          <span class="lab2">Fondo</span>
+          <button class="btn sec mini adjbtn bg-auto" type="button">✨ Quitar fondo</button>
+          <button class="btn sec mini adjbtn bg-wand" type="button" aria-pressed="false">🪄 Borrar tocando</button>
+          <button class="btn sec mini adjbtn bg-undo" type="button">↶ Deshacer</button>
+          <label class="tol">Sensibilidad <input type="range" class="bg-tol" min="5" max="80" value="25" aria-label="Sensibilidad del borrado"></label>
+          <p class="note bg-note">Quitar fondo pone en blanco lo que rodea al objeto. Funciona mejor con fondos lisos (pared, mesa, folio). Con «Borrar tocando», toca en la foto las zonas que quieras dejar en blanco.</p>
+        </div>
         </div>
       </div>
       <div class="chips" id="edcolors"></div>
@@ -453,6 +507,17 @@ footer p{margin:0 0 8px}
   <p class="copy">© 2026 Manolo Castillo Redondo. Manu en clase: idea, diseño y código de la herramienta. Los pictogramas son de ARASAAC y mantienen su propia licencia.</p>
 </div></footer>
 
+<div class="cammodal" id="cammodal" hidden role="dialog" aria-modal="true" aria-label="Sacar foto">
+  <div class="cambox">
+    <video id="camvideo" playsinline autoplay muted></video>
+    <p class="note" id="camnote"></p>
+    <div class="row camrow">
+      <button class="btn pri" type="button" id="camshot">📸 Hacer foto</button>
+      <button class="btn lt" type="button" id="camflip">Cambiar cámara</button>
+      <button class="btn lt" type="button" id="camclose">Cancelar</button>
+    </div>
+  </div>
+</div>
 <div class="toast" id="toast" role="status"></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
@@ -529,11 +594,55 @@ const sizeTxt=(w,h)=>`${fmtCm(w)} × ${fmtCm(h)} cm`;
 const sizeFile=(w,h)=>w===h?`${fmtCm(w)}cm`:`${fmtCm(w)}x${fmtCm(h)}cm`;
 function sizeCanvas(k,w,h,base){if(h>=w){k.height=base;k.width=Math.round(base*w/h)}else{k.width=base;k.height=Math.round(base*h/w)}}
 const ZMIN=0.3,ZMAX=6,clampZ=z=>Math.min(ZMAX,Math.max(ZMIN,z));
+/* Mantiene el mismo encuadre de la foto cuando la tarjeta cambia de forma (p. ej. 10×15 → cuadrada) */
+function adaptAdj(adj,img,from,to,pos){
+  if(!adj||!img||!img.naturalWidth||!from||!to)return adj;
+  const A=imgBox(600,600*from.h/from.w,pos),B=imgBox(600,600*to.h/to.w,pos);
+  if(Math.abs(A.w/A.h-B.w/B.h)<1e-3)return{...adj};
+  const W=img.naturalWidth,H=img.naturalHeight,rA=Math.min(A.w/W,A.h/H)*adj.z;
+  const Px=W/2-adj.x*A.w/rA,Py=H/2-adj.y*A.h/rA,rB=rA*Math.sqrt((B.w*B.h)/(A.w*A.h));
+  return{z:clampZ(rB/Math.min(B.w/W,B.h/H)),x:(W/2-Px)*rB/B.w,y:(H/2-Py)*rB/B.h}}
+/* Quitar fondo: rellena de blanco desde los bordes (o desde donde toques) las zonas de color parecido */
+function whiten(img,seeds,tol){return new Promise(ok=>{
+  const W=img.naturalWidth,H=img.naturalHeight,c=document.createElement('canvas');c.width=W;c.height=H;
+  const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0);
+  const id=x.getImageData(0,0,W,H),d=id.data,N=W*H,mask=new Uint8Array(N),ref=new Int32Array(N),q=new Int32Array(N);
+  const T=tol*3.2,T2=T*T,Tl=(T*0.12)**2,Th=(T*1.2)**2;let qh=0,qt=0;
+  const dist=(a,b)=>{const i=a*4,j=b*4,r=d[i]-d[j],g=d[i+1]-d[j+1],bb=d[i+2]-d[j+2];return r*r+g*g+bb*bb};
+  for(const [sx,sy] of seeds){if(sx<0||sy<0||sx>=W||sy>=H)continue;const k=sy*W+sx;if(mask[k])continue;mask[k]=1;ref[k]=k;q[qt++]=k}
+  while(qh<qt){const k=q[qh++],px=k%W,r0=ref[k];
+    const nb=[px>0?k-1:-1,px<W-1?k+1:-1,k-W,k+W];
+    for(const n of nb){if(n<0||n>=N||mask[n])continue;const dr=dist(n,r0);
+      if(dr<T2||(dr<Th&&dist(n,k)<Tl)){mask[n]=1;ref[n]=r0;q[qt++]=n}}}
+  for(let k=0;k<N;k++){const i=k*4;
+    if(mask[k]){d[i]=d[i+1]=d[i+2]=255;d[i+3]=255;continue}
+    const px=k%W;const e=(px>0&&mask[k-1])||(px<W-1&&mask[k+1])||(k>=W&&mask[k-W])||(k<N-W&&mask[k+W]);
+    if(e){d[i]=(d[i]+255)>>1;d[i+1]=(d[i+1]+255)>>1;d[i+2]=(d[i+2]+255)>>1}}
+  x.putImageData(id,0,0);const o=new Image();o.onload=()=>ok(o);o.src=c.toDataURL('image/jpeg',0.92)})}
+function borderSeeds(img){const W=img.naturalWidth,H=img.naturalHeight,s=[],st=Math.max(1,Math.round(Math.min(W,H)/300));
+  for(let x=0;x<W;x+=st){s.push([x,0],[x,H-1])}for(let y=0;y<H;y+=st){s.push([0,y],[W-1,y])}return s}
+function canvasToImage(cvs,c,e){const r=cvs.getBoundingClientRect(),k=cvs.width/r.width,px=(e.clientX-r.left)*k,py=(e.clientY-r.top)*k;
+  const b=imgBox(cvs.width,cvs.height,c.pos),W=c.img.naturalWidth,H=c.img.naturalHeight,s=Math.min(b.w/W,b.h/H)*c.adj.z;
+  const ox=b.x+b.w/2+c.adj.x*b.w-W*s/2,oy=b.y+b.h/2+c.adj.y*b.h-H*s/2;
+  if(px<b.x||py<b.y||px>b.x+b.w||py>b.y+b.h)return null;return[Math.round((px-ox)/s),Math.round((py-oy)/s)]}
+/* Conecta los botones de fondo a una tarjeta: get() devuelve la tarjeta, cvs su lienzo, redraw la repinta */
+function attachBg(box,cvs,get,redraw){
+  const wand=box.querySelector('.bg-wand'),tol=box.querySelector('.bg-tol');
+  const setWand=on=>{wand.setAttribute('aria-pressed',on?'true':'false');cvs.classList.toggle('wand',on);cvs.dataset.wand=on?'1':''};
+  const push=c=>{c.hist=c.hist||[];c.hist.push(c.img);if(c.hist.length>8)c.hist.shift()};
+  box.querySelector('.bg-auto').onclick=async()=>{const c=get();if(!c||!c.img)return;toast('Quitando el fondo…');
+    push(c);c.img=await whiten(c.img,borderSeeds(c.img),+tol.value);redraw();toast('Fondo en blanco. Si queda algo, usa «Borrar tocando».')};
+  wand.onclick=()=>setWand(wand.getAttribute('aria-pressed')!=='true');
+  box.querySelector('.bg-undo').onclick=()=>{const c=get();if(!c||!c.hist||!c.hist.length){toast('No hay nada que deshacer');return}c.img=c.hist.pop();redraw()};
+  cvs.addEventListener('click',async e=>{if(cvs.dataset.wand!=='1')return;const c=get();if(!c||!c.img||!c.adj)return;
+    const pt=canvasToImage(cvs,c,e);if(!pt)return;push(c);c.img=await whiten(c.img,[pt],+tol.value);redraw()});
+  return{reset:()=>setWand(false)}}
+
 /* Arrastrar, pellizcar y rueda para colocar la foto dentro del recuadro */
 function attachAdjust(cvs,get,redraw){
   const pts=new Map();
   const geo=()=>{const c=get(),r=cvs.getBoundingClientRect();return{c,k:cvs.width/r.width,b:imgBox(cvs.width,cvs.height,c?c.pos:'bottom')}};
-  cvs.addEventListener('pointerdown',e=>{const{c}=geo();if(!c||!c.adj)return;e.preventDefault();cvs.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY})});
+  cvs.addEventListener('pointerdown',e=>{if(cvs.dataset.wand==='1')return;const{c}=geo();if(!c||!c.adj)return;e.preventDefault();cvs.setPointerCapture(e.pointerId);pts.set(e.pointerId,{x:e.clientX,y:e.clientY})});
   cvs.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;const{c,k,b}=geo();if(!c||!c.adj)return;
     const prev=new Map(pts);pts.set(e.pointerId,{x:e.clientX,y:e.clientY});
     if(pts.size===1){const p=prev.get(e.pointerId);c.adj.x+=(e.clientX-p.x)*k/b.w;c.adj.y+=(e.clientY-p.y)*k/b.h}
@@ -595,7 +704,7 @@ function render(){sizeCanvas(cv,st.w,st.h,600);drawCard(cx,cv.width,cv.height,st
   if(own)$('zoom').value=Math.round(st.adj.z*100)}
 function chips(){
   colorChips($('colors'),st.color,c=>{st.color=c;chips();render()});
-  sizeChips($('sizes'),SIZES.map(o=>({v:o.cm,h:`${o.cm} cm <small>${o.t}</small>`})),st.w===st.h?st.w:null,v=>{st.w=st.h=v;$('cmw').value=$('cmh').value='';chips();render()});
+  sizeChips($('sizes'),SIZES.map(o=>({v:o.cm,h:`${o.cm} cm <small>${o.t}</small>`})),st.w===st.h?st.w:null,v=>{setCardSize(v,v);$('cmw').value=$('cmh').value='';chips();render()});
 }
 $('custom').oninput=e=>{st.color=e.target.value;chips();render()};
 $('label').oninput=e=>{st.label=e.target.value.toUpperCase();e.target.value=st.label;render()};
@@ -612,8 +721,9 @@ function cardDims(commit){const d=readDims($('cmw'),$('cmh'),27,19);if(!d)return
   if(d.bad){if(!commit)return;d.w=Math.min(27,Math.max(2,d.w));d.h=Math.min(27,Math.max(2,d.h));
     if(Math.min(d.w,d.h)>19){if(d.w<=d.h)d.w=19;else d.h=19}
     toast('Ajustado para que quepa en un A4: entre 2 y 27 cm, lado corto hasta 19');}
-  st.w=d.w;st.h=d.h;if(commit){if($('cmw').value)$('cmw').value=fmtCm(d.w);if($('cmh').value)$('cmh').value=fmtCm(d.h)}
-  if(st.adj&&st.img)st.adj.z=clampZ(Math.max(st.adj.z,1));chips();render()}
+  setCardSize(d.w,d.h);if(commit){if($('cmw').value)$('cmw').value=fmtCm(d.w);if($('cmh').value)$('cmh').value=fmtCm(d.h)}
+  chips();render()}
+function setCardSize(w,h){if(st.src==='propia'&&st.adj)st.adj=adaptAdj(st.adj,st.img,{w:st.w,h:st.h},{w,h},st.pos);st.w=w;st.h=h}
 ['cmw','cmh'].forEach(id=>{$(id).oninput=()=>cardDims(false);$(id).onchange=()=>cardDims(true)});
 
 async function pick(id,btn){
@@ -640,7 +750,7 @@ $('sform').onsubmit=e=>{e.preventDefault();search($('q').value)};
 
 async function useOwn(file){
   try{const img=await readImage(file);
-    st.img=img;st.src='propia';st.id='propia';st.adj={z:fillZ(img,st.pos,st.w,st.h),x:0,y:0};
+    st.img=img;st.hist=[];st.src='propia';st.id='propia';st.adj={z:fillZ(img,st.pos,st.w,st.h),x:0,y:0};
     document.querySelectorAll('#results .res').forEach(r=>r.classList.remove('on'));
     $('snote').textContent='Imagen cargada. Colócala a tu gusto en la tarjeta y escribe el texto en el paso 2.';
     render();$('label').focus();$('label').select();
@@ -648,6 +758,7 @@ async function useOwn(file){
 }
 $('file').onchange=e=>{const f=e.target.files[0];if(f)useOwn(f);e.target.value=''};
 dropZone($('drop'),useOwn);
+const bgMain=attachBg(document.querySelector('.bgtools[data-for="main"]'),cv,()=>st.src==='propia'?st:null,render);
 document.addEventListener('paste',e=>{
   const it=[...((e.clipboardData&&e.clipboardData.items)||[])].find(i=>/^image\//.test(i.type));if(!it)return;
   const f=it.getAsFile();if(!f)return;e.preventDefault();
@@ -686,6 +797,8 @@ function fraseSize(){if(fsize!=='auto')return fsize;const n=frase.length||1,g=0.
 function fraseLayout(){const{w,h}=fraseSize(),g=gapFor(Math.min(w,h));
   const cols=Math.max(1,Math.floor((L.W-2*L.m+g)/(w+g))),rowsPer=Math.max(1,Math.floor((L.H-2*L.m-L.foot+g)/(h+g)));
   const nRows=Math.max(1,Math.ceil(frase.length/cols));return{w,h,g,cols,rowsPer,nRows,pages:Math.ceil(nRows/rowsPer)}}
+function setFraseSize(ns){const a=fraseSize();fsize=ns;const b=fraseSize();
+  frase.forEach(c=>{if(c.src==='propia'&&c.adj)c.adj=adaptAdj(c.adj,c.img,a,b,c.pos)})}
 function itemCanvas(c){const k=document.createElement('canvas'),z=fraseSize();k.width=300;k.height=Math.round(300*z.h/z.w);drawCard(k.getContext('2d'),k.width,k.height,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null);return k}
 function drawFrase(){
   const F=$('frase');F.innerHTML='';
@@ -702,17 +815,17 @@ function drawFrase(){
      ['✕','Quitar',()=>{frase.splice(i,1);if(sel===i)closeEd();else{if(sel>i)sel--;if(sel>=0)openEd(sel);else drawFrase()}}]]
      .forEach(([t,l,f])=>{const b=document.createElement('button');b.type='button';b.textContent=t;b.setAttribute('aria-label',l);b.onclick=f;ctl.appendChild(b)});
     d.appendChild(ctl);F.appendChild(d)});
-  sizeChips($('fsizes'),FS,fsize==='auto'?'auto':(fsize.w===fsize.h?fsize.w:null),v=>{fsize=v==='auto'?'auto':{w:v,h:v};$('fw').value=$('fh').value='';drawFrase()});
+  sizeChips($('fsizes'),FS,fsize==='auto'?'auto':(fsize.w===fsize.h?fsize.w:null),v=>{setFraseSize(v==='auto'?'auto':{w:v,h:v});$('fw').value=$('fh').value='';drawFrase()});
   const Lo=fraseLayout();
   $('fnote').textContent=frase.length?`${frase.length} tarjeta${frase.length>1?'s':''} de ${sizeTxt(Lo.w,Lo.h)} · ${Lo.nRows} fila${Lo.nRows>1?'s':''} · ${Lo.pages} página${Lo.pages>1?'s':''} A4`:'';
   $('fpdf').disabled=$('fclear').disabled=!frase.length||frase.some(c=>c.loading);
 }
 function fraseDims(commit){let w=numIn($('fw')),h=numIn($('fh'));if(isNaN(w)&&isNaN(h))return;if(isNaN(w))w=h;if(isNaN(h))h=w;w=r1(w);h=r1(h);
   const ok=w>=2&&h>=2&&w<=27&&h<=18;if(!ok){if(!commit)return;w=Math.min(27,Math.max(2,w));h=Math.min(18,Math.max(2,h));toast('En la frase (A4 horizontal): ancho de 2 a 27 cm y alto de 2 a 18 cm')}
-  fsize={w,h};if(commit){if($('fw').value)$('fw').value=fmtCm(w);if($('fh').value)$('fh').value=fmtCm(h)}drawFrase();if(sel>=0)edAdjust()}
+  setFraseSize({w,h});if(commit){if($('fw').value)$('fw').value=fmtCm(w);if($('fh').value)$('fh').value=fmtCm(h)}drawFrase();if(sel>=0)edAdjust()}
 ['fw','fh'].forEach(id=>{$(id).oninput=()=>fraseDims(false);$(id).onchange=()=>fraseDims(true)});
 
-$('add').onclick=()=>{frase.push({label:st.label,img:st.img,id:st.src==='arasaac'?st.id:null,src:st.src,color:st.color,pos:st.pos,fit:st.fit,adj:st.adj?{...st.adj}:null,alts:[...st.alts],q:st.q});
+$('add').onclick=()=>{frase.push({label:st.label,img:st.img,id:st.src==='arasaac'?st.id:null,src:st.src,color:st.color,pos:st.pos,fit:st.fit,adj:st.adj?adaptAdj(st.adj,st.img,{w:st.w,h:st.h},fraseSize(),st.pos):null,alts:[...st.alts],q:st.q});
   drawFrase();toast(`«${st.label}» añadida a la frase`)};
 $('fclear').onclick=()=>{frase.length=0;closeEd()};
 $('fpdf').onclick=()=>{
@@ -775,6 +888,7 @@ function toBlocks(text,group){
 async function buildItem(words){
   const label=words.join(' ').toUpperCase();
   const content=words.filter(x=>!STOP.has(x.toLowerCase())),keys=content.length?content:words;
+  if($('qlib').checked){const L=await libFind([label,keys.join(' '),...keys]);if(L){const it=await libToItem(L);it.label=label;return it}}
   let hit=null;
   if(keys.length>1){const full=keys.join(' '),d=await apiSearch(full),ex=exactOf(d,full);if(ex.length)hit={q:full,list:ex.concat(d.filter(p=>!ex.includes(p)))}}
   const per=await Promise.all(keys.map(findPicto));
@@ -795,8 +909,8 @@ $('qform').onsubmit=async e=>{
   frase.push(...ph);drawFrase();
   try{
     const items=await Promise.all(blocks.map(buildItem));
-    items.forEach((it,k)=>Object.assign(ph[k],it,{loading:!!it.id}));drawFrase();
-    await Promise.all(ph.map(async o=>{if(!o.id)return;try{o.img=await loadPicto(o.id)}catch(e){o.id=null;o.src=null}o.loading=false;drawFrase()}));
+    items.forEach((it,k)=>Object.assign(ph[k],it,{loading:!!it.id&&!it.img}));drawFrase();
+    await Promise.all(ph.map(async o=>{if(!o.id||o.img)return;try{o.img=await loadPicto(o.id)}catch(e){o.id=null;o.src=null}o.loading=false;drawFrase()}));
   }finally{btn.disabled=false;btn.textContent='Crear frase';ph.forEach(o=>o.loading=false);drawFrase()}
   const miss=frase.findIndex(c=>!c.img);
   toast(miss>=0?'Frase creada. Hay tarjetas sin dibujo: tócalas para elegir uno o subir una imagen.':'Frase creada. Toca una tarjeta para cambiarla.');
@@ -823,7 +937,7 @@ function edAlts(){
     R.appendChild(b)});
 }
 async function edOwn(file){const c=frase[sel];if(!c)return;
-  try{c.img=await readImage(file);c.src='propia';c.id=null;{const z=fraseSize();c.adj={z:fillZ(c.img,c.pos,z.w,z.h),x:0,y:0}}$('ednote').textContent='Imagen puesta. Colócala a tu gusto arrastrándola.';edAlts();edAdjust();drawFrase()}
+  try{c.img=await readImage(file);c.hist=[];c.src='propia';c.id=null;{const z=fraseSize();c.adj={z:fillZ(c.img,c.pos,z.w,z.h),x:0,y:0}}$('ednote').textContent='Imagen puesta. Colócala a tu gusto arrastrándola.';edAlts();edAdjust();drawFrase()}
   catch(e){$('ednote').textContent=IMGERR}}
 $('edlabel').oninput=e=>{const c=frase[sel];if(!c)return;c.label=e.target.value.toUpperCase();e.target.value=c.label;edAdjust();drawFrase()};
 $('edsform').onsubmit=async e=>{e.preventDefault();const c=frase[sel];if(!c)return;const q=$('edq').value.trim();if(!q)return;
@@ -840,6 +954,74 @@ $('edzoom').oninput=e=>{const c=frase[sel];if(!c||!c.adj)return;c.adj.z=clampZ(e
 document.querySelectorAll('.edadjbtn').forEach(b=>b.onclick=()=>{const c=frase[sel];if(!c||!c.img||!c.adj)return;const z=fraseSize();c.adj={z:b.dataset.adj==='fill'?fillZ(c.img,c.pos,z.w,z.h):1,x:0,y:0};edRedraw()});
 $('edclose').onclick=closeEd;
 dropZone($('eddrop'),edOwn);
+const bgEd=attachBg(document.querySelector('.bgtools[data-for="ed"]'),$('edcv'),()=>{const c=frase[sel];return c&&c.src==='propia'?c:null},()=>{edAdjust();drawFrase()});
+$('edsave').onclick=()=>{const c=frase[sel];if(!c||!c.img){toast('Esta tarjeta aún no tiene dibujo');return}const z=fraseSize();libSave({...c,w:z.w,h:z.h})};
+
+/* ---------- Cámara ---------- */
+let camTarget='main',camStream=null,camFacing='environment';
+const coarse=()=>window.matchMedia&&matchMedia('(pointer:coarse)').matches;
+async function camStart(){try{camStop();camStream=await navigator.mediaDevices.getUserMedia({video:{facingMode:camFacing,width:{ideal:1920},height:{ideal:1080}},audio:false});
+  $('camvideo').srcObject=camStream;$('camnote').textContent='Encuadra el objeto y pulsa «Hacer foto».';return true}catch(e){return false}}
+function camStop(){if(camStream){camStream.getTracks().forEach(t=>t.stop());camStream=null}}
+function camClose(){camStop();$('cammodal').hidden=true}
+async function camOpen(target){camTarget=target;
+  if(coarse()||!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){$('cam').click();return}
+  $('cammodal').hidden=false;$('camnote').textContent='Abriendo la cámara…';
+  if(!await camStart()){camClose();toast('No se pudo abrir la cámara. Revisa el permiso del navegador o usa «Subir imagen».')}}
+document.querySelectorAll('.camb').forEach(b=>b.onclick=()=>camOpen(b.dataset.target));
+$('cam').onchange=e=>{const f=e.target.files[0];if(f){camTarget==='ed'?edOwn(f):useOwn(f)}e.target.value=''};
+$('camflip').onclick=()=>{camFacing=camFacing==='environment'?'user':'environment';camStart()};
+$('camclose').onclick=camClose;
+document.addEventListener('keydown',e=>{if(e.key==='Escape'&&!$('cammodal').hidden)camClose()});
+$('camshot').onclick=()=>{const v=$('camvideo');if(!v.videoWidth)return;const c=document.createElement('canvas');c.width=v.videoWidth;c.height=v.videoHeight;
+  c.getContext('2d').drawImage(v,0,0);c.toBlob(b=>{camClose();const f=new File([b],'foto.jpg',{type:'image/jpeg'});camTarget==='ed'?edOwn(f):useOwn(f)},'image/jpeg',0.92)};
+
+/* ---------- Mis pictos (biblioteca en este dispositivo) ---------- */
+let db=null;
+function dbOpen(){return new Promise(ok=>{try{const r=indexedDB.open('manuenclase',1);r.onupgradeneeded=()=>r.result.createObjectStore('pictos',{keyPath:'id'});
+  r.onsuccess=()=>{db=r.result;ok(db)};r.onerror=()=>ok(null)}catch(e){ok(null)}})}
+function dbAll(){return new Promise(ok=>{if(!db)return ok([]);try{const r=db.transaction('pictos').objectStore('pictos').getAll();r.onsuccess=()=>ok(r.result||[]);r.onerror=()=>ok([])}catch(e){ok([])}})}
+function dbPut(o){return new Promise(ok=>{if(!db)return ok(false);try{const t=db.transaction('pictos','readwrite');t.objectStore('pictos').put(o);t.oncomplete=()=>ok(true);t.onerror=()=>ok(false)}catch(e){ok(false)}})}
+function dbDel(id){return new Promise(ok=>{if(!db)return ok(false);try{const t=db.transaction('pictos','readwrite');t.objectStore('pictos').delete(id);t.oncomplete=()=>ok(true)}catch(e){ok(false)}})}
+let LIB=[];const libImgs=new Map();
+function imgFromData(u){if(libImgs.has(u))return Promise.resolve(libImgs.get(u));return new Promise(ok=>{const i=new Image();i.onload=()=>{libImgs.set(u,i);ok(i)};i.onerror=()=>ok(null);i.src=u})}
+function imgToData(img,max){const r=Math.min(1,max/Math.max(img.naturalWidth,img.naturalHeight)),c=document.createElement('canvas');
+  c.width=Math.round(img.naturalWidth*r);c.height=Math.round(img.naturalHeight*r);const x=c.getContext('2d');x.fillStyle='#fff';x.fillRect(0,0,c.width,c.height);x.drawImage(img,0,0,c.width,c.height);
+  return c.toDataURL('image/jpeg',0.9)}
+async function libSave(c){
+  if(!db){toast('Este navegador no permite guardar pictos (¿modo incógnito?)');return}
+  let data;try{data=imgToData(c.img,1200)}catch(e){toast('No se pudo guardar este dibujo');return}
+  const lab=(c.label||'').trim()||'SIN TEXTO',old=LIB.find(x=>norm(x.label)===norm(lab));
+  const o={id:old?old.id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),label:lab,color:c.color,pos:c.pos||'bottom',src:c.src,aid:c.src==='arasaac'?c.id:null,
+    img:data,adj:c.src==='propia'&&c.adj?{...c.adj}:null,w:c.w||8,h:c.h||8,t:Date.now()};
+  if(await dbPut(o)){await libLoad();toast(old?`«${lab}» actualizado en Mis pictos`:`«${lab}» guardado en Mis pictos`);$('lib').open=true}else toast('No se pudo guardar')}
+async function libToItem(L){const img=await imgFromData(L.img),z=fraseSize();
+  return{label:L.label,img,id:L.aid,src:L.src==='arasaac'?'arasaac':'propia',color:L.color,pos:L.pos,fit:'contain',
+    adj:L.adj?adaptAdj(L.adj,img,{w:L.w,h:L.h},z,L.pos):(L.src==='arasaac'?null:{z:1,x:0,y:0}),alts:L.aid?[L.aid]:[],q:L.label.toLowerCase(),lib:L.id}}
+async function libFind(cands){if(!LIB.length)return null;for(const c of cands){const n=norm(c);if(!n)continue;const L=LIB.find(x=>norm(x.label)===n);if(L)return L}return null}
+async function libLoad(){LIB=(await dbAll()).sort((a,b)=>a.label.localeCompare(b.label,'es'));
+  $('libcount').textContent=LIB.length?`${LIB.length} guardado${LIB.length>1?'s':''}`:'';
+  const G=$('libgrid');G.innerHTML='';
+  if(!LIB.length){G.innerHTML='<p class="note" style="grid-column:1/-1">Aún no tienes pictos guardados. Crea uno en «Crea tu tarjeta» y pulsa «★ Guardar en Mis pictos».</p>';return}
+  for(const L of LIB){const img=await imgFromData(L.img);const d=document.createElement('div');d.className='libitem';
+    const k=document.createElement('canvas');sizeCanvas(k,L.w,L.h,240);drawCard(k.getContext('2d'),k.width,k.height,img,L.label,L.color,L.pos,'contain',L.src==='arasaac'?null:(L.adj||{z:1,x:0,y:0}));
+    const p=document.createElement('button');p.type='button';p.className='fpick';p.setAttribute('aria-label','Añadir '+L.label+' a la frase');p.appendChild(k);
+    p.onclick=async()=>{frase.push(await libToItem(L));drawFrase();toast(`«${L.label}» añadida a la frase`)};d.appendChild(p);
+    const ctl=document.createElement('div');ctl.className='ctl';
+    const ed=document.createElement('button');ed.type='button';ed.textContent='Editar';ed.onclick=async()=>{const it=await libToItem(L);
+      Object.assign(st,{img:it.img,src:it.src,id:it.src==='arasaac'?L.aid:'propia',label:L.label,color:L.color,pos:L.pos,w:L.w,h:L.h,adj:L.adj?{...L.adj}:(it.src==='propia'?{z:1,x:0,y:0}:null),hist:[]});
+      $('label').value=L.label;$('pos').value=L.pos;chips();render();document.getElementById('tarjetas').scrollIntoView({behavior:'smooth'});toast('Cámbialo y vuelve a pulsar «Guardar en Mis pictos»')};
+    const del=document.createElement('button');del.type='button';del.textContent='Borrar';
+    del.onclick=async()=>{if(del.dataset.armed){await dbDel(L.id);libLoad();toast(`«${L.label}» borrado`)}else{del.dataset.armed='1';del.textContent='¿Seguro?';del.classList.add('danger');setTimeout(()=>{if(del.isConnected){del.dataset.armed='';del.textContent='Borrar';del.classList.remove('danger')}},3000)}};
+    ctl.append(ed,del);d.appendChild(ctl);G.appendChild(d)}}
+$('save').onclick=()=>{if(!st.img)return;libSave(st)};
+$('libexp').onclick=async()=>{const all=await dbAll();if(!all.length){toast('No hay pictos que exportar');return}
+  save(new Blob([JSON.stringify({app:'manuenclase',v:1,pictos:all})],{type:'application/json'}),'mis-pictos-manuenclase.json');toast(`${all.length} pictos exportados`)};
+$('libimp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f)return;
+  try{const j=JSON.parse(await f.text());const arr=(j&&j.pictos)||[];let n=0;
+    for(const o of arr){if(o&&o.id&&o.label&&typeof o.img==='string'&&o.img.startsWith('data:image/')){await dbPut({id:String(o.id),label:String(o.label).slice(0,40),color:String(o.color||'#ffffff'),pos:['top','bottom','none'].includes(o.pos)?o.pos:'bottom',src:o.src==='arasaac'?'arasaac':'propia',aid:o.aid||null,img:o.img,adj:o.adj||null,w:+o.w||8,h:+o.h||8,t:+o.t||Date.now()});n++}}
+    await libLoad();toast(n?`${n} pictos importados`:'El archivo no tiene pictos válidos')}catch(err){toast('No se pudo leer el archivo')}};
+dbOpen().then(libLoad);
 
 /* ---------- Juego ---------- */
 const THEMES={
