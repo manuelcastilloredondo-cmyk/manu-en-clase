@@ -36,7 +36,11 @@ nav.top .in{display:flex;align-items:center;justify-content:space-between;gap:16
 .logo i{display:inline-block;width:28px;height:28px;border-radius:6px;background:linear-gradient(135deg,var(--azur),var(--turquesa));transform:skewX(-10deg)}
 .links{display:flex;gap:22px;font-family:var(--display);font-weight:600;text-transform:uppercase;letter-spacing:.08em;font-size:1rem}
 .links a{text-decoration:none;opacity:.85}.links a:hover{opacity:1;color:var(--turquesa)}
-@media (max-width:720px){.links{display:none}}
+.links a{white-space:nowrap}
+@media (max-width:1240px){nav.top .in{flex-wrap:wrap;row-gap:0}
+  .links{order:3;flex:1 1 100%;overflow-x:auto;gap:18px;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
+  .links::-webkit-scrollbar{display:none}.links a{white-space:nowrap}}
+#tarjetas,#fotos,#frases,#lib,#juego,#sobre{scroll-margin-top:96px}
 
 /* HERO */
 .hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 85% 10%,var(--rey) 0%,var(--marino) 40%,var(--noche) 75%)}
@@ -172,6 +176,11 @@ input:focus,select:focus{border-color:var(--azur);outline:none}
 .fsize .chip{padding:6px 12px}
 .frase-bar{row-gap:14px}
 .dims{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.sublab{font-weight:700;color:#3b4670;font-size:.95rem}
+.or{display:flex;align-items:center;gap:12px;margin:6px 0 0;font-weight:700;color:var(--rey);font-size:.95rem;text-align:center}
+.or::before,.or::after{content:"";flex:1;height:2px;background:#e3e9f5}
+.or span{flex:0 1 auto;max-width:30ch}
+.results:empty{display:none}
 .tip{flex:1 1 100%;margin:4px 0 0;padding:10px 12px;border-radius:8px;background:#fff7d6;color:#4a3b00;font-size:.92rem;line-height:1.45}
 .bgtools{display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;border-top:1px dashed #cbd6ea;padding-top:10px}
 .bgtools .note{flex:1 1 100%;margin:0}
@@ -262,7 +271,7 @@ footer p{margin:0 0 8px}
 
 <nav class="top"><div class="in">
   <a class="logo" href="#inicio"><i></i>Manu en clase</a>
-  <div class="links"><a href="#tarjetas">Tarjetas</a><a href="#frases">Frases</a><a href="#juego">Juego</a><a href="#sobre">Sobre Manu</a></div>
+  <div class="links" id="menu"><a href="#tarjetas">Elegir dibujo</a><a href="#fotos">Con mis fotos</a><a href="#frases">Frases</a><a href="#lib" data-open="lib">Mis pictos</a><a href="#juego">Juego</a><a href="#sobre">Sobre Manu</a></div>
   <a class="ig-nav" href="https://www.instagram.com/manuenclase/" target="_blank" rel="noopener">@manuenclase</a>
 </div></nav>
 
@@ -272,8 +281,8 @@ footer p{margin:0 0 8px}
     <h1>Manu<br>en <span>clase</span></h1>
     <p class="lead">Crea tarjetas, frases y juegos con pictogramas en un minuto. Listo para imprimir, plastificar y usar.</p>
     <div class="ctas">
-      <a class="btn pri" href="#tarjetas">Crear tarjeta</a>
-      <a class="btn sec" href="#juego">Jugar</a>
+      <a class="btn pri" href="#tarjetas">Elegir un dibujo</a>
+      <a class="btn sec" href="#fotos">Crear con mis fotos</a>
     </div>
     <div class="byline"><span class="ini photo" aria-hidden="true"></span><span><small>Creado por</small><strong>Manolo Castillo Redondo</strong><em>Maestro de PT · CEE Nuestra Señora de los Volcanes · Teguise</em></span></div>
   </div>
@@ -297,13 +306,15 @@ footer p{margin:0 0 8px}
   <div class="tool">
     <div class="panel">
       <div class="step">
-        <label for="q"><span class="lab"><b>1</b></span>Elige el dibujo</label>
+        <span class="lab"><b>1</b>Elige un dibujo o crea tu picto con tus fotos</span>
+        <label for="q" class="sublab">Busca un dibujo de ARASAAC</label>
         <form class="row" id="sform">
-          <input type="text" id="q" placeholder="Ej.: comer, mesa, padre…" autocomplete="off" value="comer">
+          <input type="text" id="q" placeholder="Ej.: comer" autocomplete="off">
           <button class="btn pri" type="submit">Buscar</button>
         </form>
         <div class="results" id="results" aria-live="polite"></div>
         <p class="note" id="snote"></p>
+        <p class="or" id="fotos"><span>o crea tu picto personalizado con tus fotos o imágenes</span></p>
         <div class="upload" id="drop">
           <label class="btn lt upbtn" for="file" tabindex="0">🖼️ Subir imagen</label>
           <button class="btn lt upbtn camb" type="button" data-target="main">📸 Sacar foto</button>
@@ -319,7 +330,7 @@ footer p{margin:0 0 8px}
       <div class="step">
         <label for="label"><span class="lab"><b>2</b></span>Texto de la tarjeta</label>
         <div class="row">
-          <input type="text" id="label" value="COMER" maxlength="30">
+          <input type="text" id="label" value="" placeholder="Ej.: COMER" maxlength="30">
           <select id="pos" aria-label="Posición del texto"><option value="bottom">Texto abajo</option><option value="top">Texto arriba</option><option value="none">Sin texto</option></select>
         </div>
       </div>
@@ -647,10 +658,13 @@ window.addEventListener('drop',e=>e.preventDefault());
 document.querySelectorAll('.upbtn').forEach(l=>l.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();$(l.htmlFor).click()}}));
 
 /* ---------- Tool state ---------- */
-const st={id:null,img:null,src:null,label:'COMER',color:COLORS[1].c,w:8,h:8,pos:'bottom',fit:'contain',adj:null,alts:[],q:'comer'};
+const st={id:null,img:null,src:null,label:'',color:COLORS[1].c,w:8,h:8,pos:'bottom',fit:'contain',adj:null,alts:[],q:''};
 const cv=$('cv'),cx=cv.getContext('2d');
 function render(){sizeCanvas(cv,st.w,st.h,600);drawCard(cx,cv.width,cv.height,st.img,st.label,st.color,st.pos,st.fit,st.src==='propia'?st.adj:null);
-  $('meta').textContent=`${sizeTxt(st.w,st.h)} · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'elige un dibujo'}`;
+  if(!st.img){const b=imgBox(cv.width,cv.height,st.pos),u=Math.min(cv.width,cv.height);cx.fillStyle='#8a94b8';cx.textAlign='center';cx.textBaseline='middle';
+    cx.font=`600 ${Math.round(u*0.05)}px Arial, sans-serif`;const lines=['Busca un dibujo','o sube tu foto'];
+    lines.forEach((t,i)=>cx.fillText(t,b.x+b.w/2,b.y+b.h/2+(i-0.5)*u*0.075))}
+  $('meta').textContent=`${sizeTxt(st.w,st.h)} · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'aún sin dibujo'}`;
   ['pdf','png','add'].forEach(b=>$(b).disabled=!st.img);
   const own=st.src==='propia'&&!!st.adj;$('adj').hidden=!own;cv.classList.toggle('movable',own);
   if(own)$('zoom').value=Math.round(st.adj.z*100)}
@@ -978,6 +992,7 @@ $('libimp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f
     for(const o of arr){if(o&&o.id&&o.label&&typeof o.img==='string'&&o.img.startsWith('data:image/')){await dbPut({id:String(o.id),label:String(o.label).slice(0,40),color:String(o.color||'#ffffff'),pos:['top','bottom','none'].includes(o.pos)?o.pos:'bottom',src:o.src==='arasaac'?'arasaac':'propia',aid:o.aid||null,img:o.img,adj:o.adj||null,w:+o.w||8,h:+o.h||8,t:+o.t||Date.now()});n++}}
     await libLoad();toast(n?`${n} pictos importados`:'El archivo no tiene pictos válidos')}catch(err){toast('No se pudo leer el archivo')}};
 dbOpen().then(libLoad);
+document.querySelectorAll('a[data-open]').forEach(a=>a.addEventListener('click',()=>{const d=$(a.dataset.open);if(d)d.open=true}));
 
 /* ---------- Juego ---------- */
 const THEMES={
@@ -1015,7 +1030,6 @@ window.addEventListener('resize',fitWord);
 
 /* ---------- Init ---------- */
 chips();render();drawFrase();startGame(false);
-search('comer');
 if(document.fonts)document.fonts.ready.then(fitWord);
 })();
 </script>
