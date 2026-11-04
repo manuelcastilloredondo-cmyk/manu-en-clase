@@ -347,11 +347,11 @@ footer p{margin:0 0 8px}
         </div>
         <div class="bgtools" data-for="main">
           <span class="lab2">Fondo</span>
-          <button class="btn sec mini adjbtn bg-auto" type="button">✨ Quitar fondo</button>
+          <button class="btn sec mini adjbtn bg-auto" type="button">✨ Quitar fondo (IA)</button>
           <button class="btn sec mini adjbtn bg-wand" type="button" aria-pressed="false">🪄 Borrar tocando</button>
           <button class="btn sec mini adjbtn bg-undo" type="button">↶ Deshacer</button>
           <label class="tol">Sensibilidad <input type="range" class="bg-tol" min="5" max="80" value="25" aria-label="Sensibilidad del borrado"></label>
-          <p class="note bg-note">Quitar fondo pone en blanco lo que rodea al objeto. Funciona mejor con fondos lisos (pared, mesa, folio). Con «Borrar tocando», toca en la foto las zonas que quieras dejar en blanco.</p>
+          <p class="note bg-note">«Quitar fondo» usa inteligencia artificial en tu propio dispositivo: la foto no se envía a ningún sitio. La primera vez descarga la IA (unos 115 MB, mejor con wifi) y después va mucho más rápido. Con «Borrar tocando» limpias a mano lo que quede.</p>
         </div>
       </div>
       <p class="meta" id="meta"></p>
@@ -421,11 +421,11 @@ footer p{margin:0 0 8px}
           </div>
         <div class="bgtools" data-for="ed">
           <span class="lab2">Fondo</span>
-          <button class="btn sec mini adjbtn bg-auto" type="button">✨ Quitar fondo</button>
+          <button class="btn sec mini adjbtn bg-auto" type="button">✨ Quitar fondo (IA)</button>
           <button class="btn sec mini adjbtn bg-wand" type="button" aria-pressed="false">🪄 Borrar tocando</button>
           <button class="btn sec mini adjbtn bg-undo" type="button">↶ Deshacer</button>
           <label class="tol">Sensibilidad <input type="range" class="bg-tol" min="5" max="80" value="25" aria-label="Sensibilidad del borrado"></label>
-          <p class="note bg-note">Quitar fondo pone en blanco lo que rodea al objeto. Funciona mejor con fondos lisos (pared, mesa, folio). Con «Borrar tocando», toca en la foto las zonas que quieras dejar en blanco.</p>
+          <p class="note bg-note">«Quitar fondo» usa inteligencia artificial en tu propio dispositivo: la foto no se envía a ningún sitio. La primera vez descarga la IA (unos 115 MB, mejor con wifi) y después va mucho más rápido. Con «Borrar tocando» limpias a mano lo que quede.</p>
         </div>
         </div>
       </div>
@@ -619,6 +619,45 @@ function whiten(img,seeds,tol){return new Promise(ok=>{
     const px=k%W;const e=(px>0&&mask[k-1])||(px<W-1&&mask[k+1])||(k>=W&&mask[k-W])||(k<N-W&&mask[k+W]);
     if(e){d[i]=(d[i]+255)>>1;d[i+1]=(d[i+1]+255)>>1;d[i+2]=(d[i+2]+255)>>1}}
   x.putImageData(id,0,0);const o=new Image();o.onload=()=>ok(o);o.src=c.toDataURL('image/jpeg',0.92)})}
+/* Recorte con IA (BiRefNet, licencia MIT) que se ejecuta en un worker dentro del navegador */
+const AI_WORKER=`
+import {AutoModel,AutoProcessor,RawImage,env} from 'https://cdn.jsdelivr.net/npm/@huggingface/transformers@3.7.6';
+env.allowLocalModels=false;
+const ID='onnx-community/BiRefNet_lite-ONNX';
+let model=null,processor=null;
+async function load(){if(model)return;
+  let gpu=false;try{gpu=!!(self.navigator&&navigator.gpu&&await navigator.gpu.requestAdapter())}catch(e){}
+  const cb={progress_callback:p=>{if(p.status==='progress'&&p.file&&/\.onnx/.test(p.file))postMessage({type:'progress',v:p.progress||0})}};
+  const tries=gpu?[{device:'webgpu',dtype:'fp16'},{device:'wasm',dtype:'fp16'},{device:'wasm',dtype:'fp32'}]:[{device:'wasm',dtype:'fp16'},{device:'wasm',dtype:'fp32'}];
+  let err=null;for(const t of tries){try{model=await AutoModel.from_pretrained(ID,{...cb,...t});postMessage({type:'device',v:t.device+'/'+t.dtype});break}catch(e){err=e;model=null}}
+  if(!model)throw err||new Error('modelo');
+  processor=await AutoProcessor.from_pretrained(ID)}
+onmessage=async e=>{try{await load();postMessage({type:'status'});
+  const {data,w,h}=e.data;const img=new RawImage(new Uint8ClampedArray(data),w,h,4).rgb();
+  const {pixel_values}=await processor(img);
+  const out=await model({input_image:pixel_values});
+  const t=out.output_image||Object.values(out)[0];
+  const mask=await RawImage.fromTensor(t[0].sigmoid().mul(255).to('uint8')).resize(w,h);
+  postMessage({type:'done',mask:mask.data,w,h},[mask.data.buffer]);
+}catch(err){postMessage({type:'error',v:String((err&&err.message)||err)})}};`;
+let aiW=null;
+function aiWorker(){if(!aiW)aiW=new Worker(URL.createObjectURL(new Blob([AI_WORKER],{type:'text/javascript'})),{type:'module'});return aiW}
+function aiCut(img,onStatus){return new Promise((ok,ko)=>{
+  const W=img.naturalWidth,H=img.naturalHeight,r=Math.min(1,1600/Math.max(W,H)),w=Math.round(W*r),h=Math.round(H*r);
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d',{willReadFrequently:true});x.drawImage(img,0,0,w,h);
+  const src=x.getImageData(0,0,w,h),copy=new Uint8ClampedArray(src.data);
+  let wk;try{wk=aiWorker()}catch(e){return ko(e)}
+  const timer=setTimeout(()=>ko(new Error('tiempo')),300000);
+  wk.onerror=e=>{clearTimeout(timer);aiW=null;ko(new Error(e.message||'worker'))};
+  wk.onmessage=e=>{const m=e.data;
+    if(m.type==='progress')onStatus(`Descargando la IA… ${Math.round(m.v)} % (solo la primera vez)`);
+    else if(m.type==='status')onStatus('Recortando la foto…');
+    else if(m.type==='error'){clearTimeout(timer);ko(new Error(m.v))}
+    else if(m.type==='done'){clearTimeout(timer);const mk=m.mask,d=src.data;
+      for(let k=0,i=0;k<mk.length;k++,i+=4){let a=(mk[k]/255-0.08)/0.84;a=a<0?0:a>1?1:a;
+        d[i]=copy[i]*a+255*(1-a);d[i+1]=copy[i+1]*a+255*(1-a);d[i+2]=copy[i+2]*a+255*(1-a);d[i+3]=255}
+      x.putImageData(src,0,0);const o=new Image();o.onload=()=>ok(o);o.src=c.toDataURL('image/jpeg',0.92)}};
+  wk.postMessage({data:copy.slice().buffer,w,h})})}
 function borderSeeds(img){const W=img.naturalWidth,H=img.naturalHeight,s=[],st=Math.max(1,Math.round(Math.min(W,H)/300));
   for(let x=0;x<W;x+=st){s.push([x,0],[x,H-1])}for(let y=0;y<H;y+=st){s.push([0,y],[W-1,y])}return s}
 function canvasToImage(cvs,c,e){const r=cvs.getBoundingClientRect(),k=cvs.width/r.width,px=(e.clientX-r.left)*k,py=(e.clientY-r.top)*k;
@@ -630,8 +669,13 @@ function attachBg(box,cvs,get,redraw){
   const wand=box.querySelector('.bg-wand'),tol=box.querySelector('.bg-tol');
   const setWand=on=>{wand.setAttribute('aria-pressed',on?'true':'false');cvs.classList.toggle('wand',on);cvs.dataset.wand=on?'1':''};
   const push=c=>{c.hist=c.hist||[];c.hist.push(c.img);if(c.hist.length>8)c.hist.shift()};
-  box.querySelector('.bg-auto').onclick=async()=>{const c=get();if(!c||!c.img)return;toast('Quitando el fondo…');
-    push(c);c.img=await whiten(c.img,borderSeeds(c.img),+tol.value);redraw();toast('Fondo en blanco. Si queda algo, usa «Borrar tocando».')};
+  const note=box.querySelector('.bg-note'),noteTxt=note.textContent,btn=box.querySelector('.bg-auto');
+  btn.onclick=async()=>{const c=get();if(!c||!c.img||btn.disabled)return;
+    btn.disabled=true;const old=btn.textContent;btn.textContent='Trabajando…';note.textContent='Preparando la IA…';
+    try{const out=await aiCut(c.img,t=>{note.textContent=t});push(c);c.img=out;redraw();toast('Fondo quitado. Si queda algo, usa «Borrar tocando».')}
+    catch(err){console.warn('IA',err);note.textContent='No se pudo usar la IA (puede que la red bloquee la descarga). He usado el modo básico, que va bien con fondos lisos.';
+      push(c);c.img=await whiten(c.img,borderSeeds(c.img),+tol.value);redraw()}
+    finally{btn.disabled=false;btn.textContent=old;setTimeout(()=>{if(!btn.disabled)note.textContent=noteTxt},9000)}};
   wand.onclick=()=>setWand(wand.getAttribute('aria-pressed')!=='true');
   box.querySelector('.bg-undo').onclick=()=>{const c=get();if(!c||!c.hist||!c.hist.length){toast('No hay nada que deshacer');return}c.img=c.hist.pop();redraw()};
   cvs.addEventListener('click',async e=>{if(cvs.dataset.wand!=='1')return;const c=get();if(!c||!c.img||!c.adj)return;
