@@ -40,7 +40,9 @@ nav.top .in{display:flex;align-items:center;justify-content:space-between;gap:16
 @media (max-width:1240px){nav.top .in{flex-wrap:wrap;row-gap:0}
   .links{order:3;flex:1 1 100%;overflow-x:auto;gap:18px;padding:2px 0 10px;scrollbar-width:none;-webkit-overflow-scrolling:touch}
   .links::-webkit-scrollbar{display:none}.links a{white-space:nowrap}}
-#tarjetas,#fotos,#frases,#lib,#juego,#sobre{scroll-margin-top:96px}
+#tarjetas,#fotos,#frases,#lib,#juego,#sobre,#ed{scroll-margin-top:110px}
+.ed-id{display:flex;align-items:center;gap:12px}
+#edthumb{width:60px;height:auto;border-radius:4px;flex:0 0 auto}
 
 /* HERO */
 .hero{position:relative;overflow:hidden;background:radial-gradient(120% 90% at 85% 10%,var(--rey) 0%,var(--marino) 40%,var(--noche) 75%)}
@@ -188,7 +190,8 @@ input:focus,select:focus{border-color:var(--azur);outline:none}
 .tol input{flex:1 1 100px;accent-color:var(--azur);min-width:0}
 .bg-wand[aria-pressed="true"]{background:var(--azur)!important;color:#fff!important;box-shadow:none!important}
 canvas.wand{cursor:crosshair!important}
-.lib{margin:6px 0 18px;border:2px solid #e3e9f5;border-radius:10px;padding:12px 14px}
+.lib{margin-top:22px;background:#fff;color:var(--tinta);border-radius:8px;padding:16px 20px}
+.lib summary .lab2{font-size:1.25rem}
 .lib summary{cursor:pointer;display:flex;gap:10px;align-items:center;list-style:none}
 .lib summary::-webkit-details-marker{display:none}
 .lib .note{margin:8px 0}
@@ -378,7 +381,7 @@ footer p{margin:0 0 8px}
   <p class="sub" style="color:var(--aguamarina)">Escribe la frase entera y se crean todas las tarjetas de una vez. Toca una tarjeta para cambiar su picto, su texto o su color, o para poner tu propia foto.</p>
   <div class="frase-wrap">
     <form class="row quick" id="qform">
-      <input type="text" id="qtext" placeholder="Ej.: voy al colegio en guagua" autocomplete="off" aria-label="Frase">
+      <input type="text" id="qtext" placeholder="Ej.: ir al colegio en guagua" autocomplete="off" aria-label="Frase">
       <button class="btn pri" type="submit" id="qgo">Crear frase</button>
     </form>
     <div class="qopts">
@@ -386,23 +389,14 @@ footer p{margin:0 0 8px}
       <label class="ck"><input type="checkbox" id="qappend"> Añadir al final de la frase actual</label>
       <label class="ck"><input type="checkbox" id="qlib" checked> Usar primero Mis pictos</label>
     </div>
+    <p class="tip" style="margin:10px 0 0">💡 <strong>Escribe los verbos en infinitivo</strong> (comer, ir, jugar…): así encuentra mejor los pictos. Por ejemplo, «ir al colegio en guagua» mejor que «voy al colegio en guagua».</p>
     <p class="note">Para decidir tú los bloques, sepáralos con «/»: voy / al colegio / en guagua</p>
 
     <div class="frase" id="frase"></div>
 
-    <details class="lib" id="lib" open>
-      <summary><span class="lab2">★ Mis pictos</span> <span class="note" id="libcount"></span></summary>
-      <p class="note">Toca un picto para añadirlo a la frase. Se guardan en este dispositivo y navegador; para llevarlos a otro, usa Exportar e Importar.</p>
-      <div class="libgrid" id="libgrid"></div>
-      <div class="row libbar">
-        <button class="btn sec mini adjbtn" type="button" id="libexp">Exportar</button>
-        <label class="btn sec mini adjbtn" for="libimp" tabindex="0">Importar</label>
-        <input type="file" id="libimp" accept="application/json,.json" class="sr">
-      </div>
-    </details>
 
     <div class="editor" id="ed" hidden>
-      <div class="ed-head"><strong id="edtitle">Editar tarjeta</strong><button class="btn sec mini adjbtn" id="edclose" type="button">Cerrar</button></div>
+      <div class="ed-head"><span class="ed-id"><canvas id="edthumb" width="120" height="120" aria-hidden="true"></canvas><strong id="edtitle">Editar tarjeta</strong></span><button class="btn sec mini adjbtn" id="edclose" type="button">Cerrar</button></div>
       <div class="ed-grid">
         <div class="step"><label for="edlabel" class="lab">Texto</label><input type="text" id="edlabel" maxlength="30"></div>
         <form class="step" id="edsform"><label for="edq" class="lab">Buscar otro picto</label><div class="row"><input type="text" id="edq" autocomplete="off"><button class="btn pri mini" type="submit">Buscar</button></div></form>
@@ -440,6 +434,16 @@ footer p{margin:0 0 8px}
       </div>
     </div>
   </div>
+  <details class="lib" id="lib" open>
+      <summary><span class="lab2">★ Mis pictos</span> <span class="note" id="libcount"></span></summary>
+      <p class="note">Toca un picto para añadirlo a la frase. Se guardan en este dispositivo y navegador; para llevarlos a otro, usa Exportar e Importar.</p>
+      <div class="libgrid" id="libgrid"></div>
+      <div class="row libbar">
+        <button class="btn sec mini adjbtn" type="button" id="libexp">Exportar</button>
+        <label class="btn sec mini adjbtn" for="libimp" tabindex="0">Importar</label>
+        <input type="file" id="libimp" accept="application/json,.json" class="sr">
+      </div>
+    </details>
 </div></section>
 
 <section class="band" id="juego"><div class="in">
@@ -784,6 +788,7 @@ function drawFrase(){
   const Lo=fraseLayout();
   $('fnote').textContent=frase.length?`${frase.length} tarjeta${frase.length>1?'s':''} de ${sizeTxt(Lo.w,Lo.h)} · ${Lo.nRows} fila${Lo.nRows>1?'s':''} · ${Lo.pages} página${Lo.pages>1?'s':''} A4`:'';
   $('fpdf').disabled=$('fclear').disabled=!frase.length||frase.some(c=>c.loading);
+  if(sel>=0&&frase[sel]){const c=frase[sel],k=$('edthumb'),z=fraseSize();k.width=120;k.height=Math.round(120*z.h/z.w);drawCard(k.getContext('2d'),k.width,k.height,c.img,c.label,c.color,c.pos,c.fit,c.src==='propia'?c.adj:null)}
 }
 function fraseDims(commit){let w=numIn($('fw')),h=numIn($('fh'));if(isNaN(w)&&isNaN(h))return;if(isNaN(w))w=h;if(isNaN(h))h=w;w=r1(w);h=r1(h);
   const ok=w>=2&&h>=2&&w<=27&&h<=18;if(!ok){if(!commit)return;w=Math.min(27,Math.max(2,w));h=Math.min(18,Math.max(2,h));toast('En la frase (A4 horizontal): ancho de 2 a 27 cm y alto de 2 a 18 cm')}
@@ -888,6 +893,7 @@ function openEd(i){
   sel=i;$('ed').hidden=false;$('edtitle').textContent=`Tarjeta ${i+1} de ${frase.length}`;
   $('edlabel').value=c.label||'';$('edq').value=c.q||'';$('ednote').textContent='';
   edAlts();edColors();edAdjust();drawFrase();
+  if(isNarrow())setTimeout(()=>$('ed').scrollIntoView({behavior:'smooth',block:'start'}),50);
 }
 function closeEd(){sel=-1;$('ed').hidden=true;drawFrase()}
 function edColors(){const c=frase[sel];if(!c)return;colorChips($('edcolors'),c.color,col=>{c.color=col;edColors();edAdjust();drawFrase()})}
@@ -976,7 +982,7 @@ async function libLoad(){LIB=(await dbAll()).sort((a,b)=>a.label.localeCompare(b
   for(const L of LIB){const img=await imgFromData(L.img);const d=document.createElement('div');d.className='libitem';
     const k=document.createElement('canvas');sizeCanvas(k,L.w,L.h,240);drawCard(k.getContext('2d'),k.width,k.height,img,L.label,L.color,L.pos,'contain',L.src==='arasaac'?null:(L.adj||{z:1,x:0,y:0}));
     const p=document.createElement('button');p.type='button';p.className='fpick';p.setAttribute('aria-label','Añadir '+L.label+' a la frase');p.appendChild(k);
-    p.onclick=async()=>{frase.push(await libToItem(L));drawFrase();toast(`«${L.label}» añadida a la frase`)};d.appendChild(p);
+    p.onclick=async()=>{frase.push(await libToItem(L));drawFrase();toast(`«${L.label}» añadida a la frase`);if(isNarrow())$('frase').scrollIntoView({behavior:'smooth',block:'center'})};d.appendChild(p);
     const ctl=document.createElement('div');ctl.className='ctl';
     const ed=document.createElement('button');ed.type='button';ed.textContent='Editar';ed.onclick=async()=>{const it=await libToItem(L);
       Object.assign(st,{img:it.img,src:it.src,id:it.src==='arasaac'?L.aid:'propia',label:L.label,color:L.color,pos:L.pos,w:L.w,h:L.h,adj:L.adj?{...L.adj}:(it.src==='propia'?{z:1,x:0,y:0}:null),hist:[]});
@@ -992,6 +998,8 @@ $('libimp').onchange=async e=>{const f=e.target.files[0];e.target.value='';if(!f
     for(const o of arr){if(o&&o.id&&o.label&&typeof o.img==='string'&&o.img.startsWith('data:image/')){await dbPut({id:String(o.id),label:String(o.label).slice(0,40),color:String(o.color||'#ffffff'),pos:['top','bottom','none'].includes(o.pos)?o.pos:'bottom',src:o.src==='arasaac'?'arasaac':'propia',aid:o.aid||null,img:o.img,adj:o.adj||null,w:+o.w||8,h:+o.h||8,t:+o.t||Date.now()});n++}}
     await libLoad();toast(n?`${n} pictos importados`:'El archivo no tiene pictos válidos')}catch(err){toast('No se pudo leer el archivo')}};
 dbOpen().then(libLoad);
+const isNarrow=()=>window.matchMedia&&matchMedia('(max-width:720px)').matches;
+try{if(isNarrow())$('lib').open=false}catch(e){}
 document.querySelectorAll('a[data-open]').forEach(a=>a.addEventListener('click',()=>{const d=$(a.dataset.open);if(d)d.open=true}));
 
 /* ---------- Juego ---------- */
