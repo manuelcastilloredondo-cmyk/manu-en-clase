@@ -271,7 +271,7 @@ footer p{margin:0 0 8px}
 
 <nav class="top"><div class="in">
   <a class="logo" href="#inicio"><i></i>Manu en clase</a>
-  <div class="links" id="menu"><a href="#tarjetas">Elegir dibujo</a><a href="#fotos">Con mis fotos</a><a href="#frases">Frases</a><a href="#lib" data-open="lib">Mis pictos</a><a href="#juego">Juego</a><a href="#sobre">Sobre Manu</a></div>
+  <div class="links" id="menu"><a href="#tarjetas">Elegir picto</a><a href="#fotos">Con mis fotos</a><a href="#frases">Frases</a><a href="#lib" data-open="lib">Mis pictos</a><a href="#juego">Juego</a><a href="#sobre">Sobre Manu</a></div>
   <a class="ig-nav" href="https://www.instagram.com/manuenclase/" target="_blank" rel="noopener">@manuenclase</a>
 </div></nav>
 
@@ -281,7 +281,7 @@ footer p{margin:0 0 8px}
     <h1>Manu<br>en <span>clase</span></h1>
     <p class="lead">Crea tarjetas, frases y juegos con pictogramas en un minuto. Listo para imprimir, plastificar y usar.</p>
     <div class="ctas">
-      <a class="btn pri" href="#tarjetas">Elegir un dibujo</a>
+      <a class="btn pri" href="#tarjetas">Elegir un picto</a>
       <a class="btn sec" href="#fotos">Crear con mis fotos</a>
     </div>
     <div class="byline"><span class="ini photo" aria-hidden="true"></span><span><small>Creado por</small><strong>Manolo Castillo Redondo</strong><em>Maestro de PT · CEE Nuestra Señora de los Volcanes · Teguise</em></span></div>
@@ -301,13 +301,13 @@ footer p{margin:0 0 8px}
 <section class="band light" id="tarjetas"><div class="in">
   <p class="eyebrow">Herramienta 1</p>
   <h2>Crea tu tarjeta</h2>
-  <p class="sub">Busca el dibujo o sube tu propia foto, elige el color del marco y el tamaño. Descárgala en PDF para imprimir o en PNG para tus paneles.</p>
+  <p class="sub">Busca el picto o sube tu propia foto, elige el color del marco y el tamaño. Descárgala en PDF para imprimir o en PNG para tus paneles.</p>
 
   <div class="tool">
     <div class="panel">
       <div class="step">
         <span class="lab"><b>1</b>Elige un picto o crea el tuyo propio con tus fotos</span>
-        <label for="q" class="sublab">Busca un dibujo de ARASAAC</label>
+        <label for="q" class="sublab">Busca un picto de ARASAAC</label>
         <form class="row" id="sform">
           <input type="text" id="q" placeholder="Ej.: comer" autocomplete="off">
           <button class="btn pri" type="submit">Buscar</button>
@@ -375,7 +375,7 @@ footer p{margin:0 0 8px}
 <section class="band deep" id="frases"><div class="in">
   <p class="eyebrow">Herramienta 2</p>
   <h2>Monta una frase</h2>
-  <p class="sub" style="color:var(--aguamarina)">Escribe la frase entera y se crean todas las tarjetas de una vez. Toca una tarjeta para cambiar su dibujo, su texto o su color, o para poner tu propia foto.</p>
+  <p class="sub" style="color:var(--aguamarina)">Escribe la frase entera y se crean todas las tarjetas de una vez. Toca una tarjeta para cambiar su picto, su texto o su color, o para poner tu propia foto.</p>
   <div class="frase-wrap">
     <form class="row quick" id="qform">
       <input type="text" id="qtext" placeholder="Ej.: voy al colegio en guagua" autocomplete="off" aria-label="Frase">
@@ -405,7 +405,7 @@ footer p{margin:0 0 8px}
       <div class="ed-head"><strong id="edtitle">Editar tarjeta</strong><button class="btn sec mini adjbtn" id="edclose" type="button">Cerrar</button></div>
       <div class="ed-grid">
         <div class="step"><label for="edlabel" class="lab">Texto</label><input type="text" id="edlabel" maxlength="30"></div>
-        <form class="step" id="edsform"><label for="edq" class="lab">Buscar otro dibujo</label><div class="row"><input type="text" id="edq" autocomplete="off"><button class="btn pri mini" type="submit">Buscar</button></div></form>
+        <form class="step" id="edsform"><label for="edq" class="lab">Buscar otro picto</label><div class="row"><input type="text" id="edq" autocomplete="off"><button class="btn pri mini" type="submit">Buscar</button></div></form>
       </div>
       <div class="results" id="edres"></div>
       <p class="note" id="ednote"></p>
@@ -662,9 +662,9 @@ const st={id:null,img:null,src:null,label:'',color:COLORS[1].c,w:8,h:8,pos:'bott
 const cv=$('cv'),cx=cv.getContext('2d');
 function render(){sizeCanvas(cv,st.w,st.h,600);drawCard(cx,cv.width,cv.height,st.img,st.label,st.color,st.pos,st.fit,st.src==='propia'?st.adj:null);
   if(!st.img){const b=imgBox(cv.width,cv.height,st.pos),u=Math.min(cv.width,cv.height);cx.fillStyle='#8a94b8';cx.textAlign='center';cx.textBaseline='middle';
-    cx.font=`600 ${Math.round(u*0.05)}px Arial, sans-serif`;const lines=['Busca un dibujo','o sube tu foto'];
+    cx.font=`600 ${Math.round(u*0.05)}px Arial, sans-serif`;const lines=['Busca un picto','o sube tu foto'];
     lines.forEach((t,i)=>cx.fillText(t,b.x+b.w/2,b.y+b.h/2+(i-0.5)*u*0.075))}
-  $('meta').textContent=`${sizeTxt(st.w,st.h)} · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'aún sin dibujo'}`;
+  $('meta').textContent=`${sizeTxt(st.w,st.h)} · ${st.src==='propia'?'imagen propia':st.id?'picto '+st.id:'aún sin picto'}`;
   ['pdf','png','add'].forEach(b=>$(b).disabled=!st.img);
   const own=st.src==='propia'&&!!st.adj;$('adj').hidden=!own;cv.classList.toggle('movable',own);
   if(own)$('zoom').value=Math.round(st.adj.z*100)}
@@ -694,9 +694,9 @@ function setCardSize(w,h){if(st.src==='propia'&&st.adj)st.adj=adaptAdj(st.adj,st
 
 async function pick(id,btn){
   document.querySelectorAll('#results .res').forEach(r=>r.classList.remove('on'));btn&&btn.classList.add('on');
-  st.id=id;st.src='arasaac';st.fit='contain';st.adj=null;$('snote').textContent='Cargando dibujo…';
+  st.id=id;st.src='arasaac';st.fit='contain';st.adj=null;$('snote').textContent='Cargando picto…';
   try{st.img=await loadPicto(id);$('snote').textContent=''}
-  catch(e){$('snote').textContent='No se pudo cargar el dibujo. Prueba otro.'}
+  catch(e){$('snote').textContent='No se pudo cargar el picto. Prueba otro.'}
   render();
 }
 async function search(q){
@@ -704,7 +704,7 @@ async function search(q){
   const R=$('results');R.innerHTML='';$('snote').textContent='Buscando…';
   const data=(await apiSearch(q)).slice(0,12);
   if(!data.length){$('snote').textContent=`No hay resultados para «${q}». Prueba en singular, con el verbo en infinitivo o sube tu propia imagen.`;return}
-  $('snote').textContent='Toca el dibujo que conozca tu alumno.';
+  $('snote').textContent='Toca el picto que conozca tu alumno.';
   st.alts=data.map(p=>p._id);st.q=q;
   data.forEach((p,i)=>{const b=document.createElement('button');b.type='button';b.className='res';
     const kw=(p.keywords&&p.keywords[0]&&p.keywords[0].keyword)||q;b.setAttribute('aria-label',kw+' ('+p._id+')');b.title=kw+' · '+p._id;
@@ -772,7 +772,7 @@ function drawFrase(){
     const d=document.createElement('div');d.className='fitem'+(i===sel?' sel':'')+(c.loading?' loading':'');
     const p=document.createElement('button');p.type='button';p.className='fpick';p.setAttribute('aria-label','Editar '+(c.label||'tarjeta'));
     p.appendChild(itemCanvas(c));p.onclick=()=>openEd(i);d.appendChild(p);
-    if(!c.img&&!c.loading){const m=document.createElement('span');m.className='miss';m.textContent='Sin dibujo: tócala';d.appendChild(m)}
+    if(!c.img&&!c.loading){const m=document.createElement('span');m.className='miss';m.textContent='Sin picto: tócala';d.appendChild(m)}
     const ctl=document.createElement('div');ctl.className='ctl';
     const mv=(a,b)=>{[frase[a],frase[b]]=[frase[b],frase[a]];if(sel===a)sel=b;else if(sel===b)sel=a;if(sel>=0)openEd(sel);else drawFrase()};
     [['←','Mover a la izquierda',()=>{if(i>0)mv(i,i-1)}],
@@ -878,7 +878,7 @@ $('qform').onsubmit=async e=>{
     await Promise.all(ph.map(async o=>{if(!o.id||o.img)return;try{o.img=await loadPicto(o.id)}catch(e){o.id=null;o.src=null}o.loading=false;drawFrase()}));
   }finally{btn.disabled=false;btn.textContent='Crear frase';ph.forEach(o=>o.loading=false);drawFrase()}
   const miss=frase.findIndex(c=>!c.img);
-  toast(miss>=0?'Frase creada. Hay tarjetas sin dibujo: tócalas para elegir uno o subir una imagen.':'Frase creada. Toca una tarjeta para cambiarla.');
+  toast(miss>=0?'Frase creada. Hay tarjetas sin picto: tócalas para elegir uno o subir una imagen.':'Frase creada. Toca una tarjeta para cambiarla.');
   if(miss>=0)openEd(miss);
 };
 
@@ -895,9 +895,9 @@ function edAlts(){
   const c=frase[sel],R=$('edres');R.innerHTML='';if(!c)return;
   if(!c.alts.length){$('ednote').textContent='Busca otra palabra o sube tu propia imagen.';return}
   c.alts.forEach(id=>{const b=document.createElement('button');b.type='button';b.className='res'+(id===c.id&&c.src==='arasaac'?' on':'');
-    b.setAttribute('aria-label','Dibujo '+id);b.innerHTML=`<img alt="" loading="lazy" src="${IMG(id,300)}">`;
+    b.setAttribute('aria-label','Picto '+id);b.innerHTML=`<img alt="" loading="lazy" src="${IMG(id,300)}">`;
     b.onclick=()=>{c.id=id;c.src='arasaac';c.fit='contain';c.adj=null;c.loading=true;edAlts();edAdjust();drawFrase();
-      loadPicto(id).then(img=>{c.img=img;$('ednote').textContent=''}).catch(()=>{$('ednote').textContent='No se pudo cargar ese dibujo. Prueba otro.'})
+      loadPicto(id).then(img=>{c.img=img;$('ednote').textContent=''}).catch(()=>{$('ednote').textContent='No se pudo cargar ese picto. Prueba otro.'})
         .finally(()=>{c.loading=false;drawFrase()})};
     R.appendChild(b)});
 }
@@ -908,7 +908,7 @@ $('edlabel').oninput=e=>{const c=frase[sel];if(!c)return;c.label=e.target.value.
 $('edsform').onsubmit=async e=>{e.preventDefault();const c=frase[sel];if(!c)return;const q=$('edq').value.trim();if(!q)return;
   $('ednote').textContent='Buscando…';const d=await apiSearch(q);
   if(!d.length){$('ednote').textContent=`No hay resultados para «${q}». Prueba otra palabra o sube tu imagen.`;return}
-  c.alts=d.slice(0,16).map(p=>p._id);c.q=q;$('ednote').textContent='Toca el dibujo que quieras.';edAlts()};
+  c.alts=d.slice(0,16).map(p=>p._id);c.q=q;$('ednote').textContent='Toca el picto que quieras.';edAlts()};
 $('edfile').onchange=e=>{const f=e.target.files[0];if(f)edOwn(f);e.target.value=''};
 const edcv=$('edcv');
 function edAdjust(){const c=frase[sel],own=!!(c&&c.src==='propia'&&c.img&&c.adj);$('edadj').hidden=!own;edcv.classList.toggle('movable',own);if(!own)return;
@@ -919,7 +919,7 @@ $('edzoom').oninput=e=>{const c=frase[sel];if(!c||!c.adj)return;c.adj.z=clampZ(e
 document.querySelectorAll('.edadjbtn').forEach(b=>b.onclick=()=>{const c=frase[sel];if(!c||!c.img||!c.adj)return;const z=fraseSize();c.adj={z:b.dataset.adj==='fill'?fillZ(c.img,c.pos,z.w,z.h):1,x:0,y:0};edRedraw()});
 $('edclose').onclick=closeEd;
 dropZone($('eddrop'),edOwn);
-$('edsave').onclick=()=>{const c=frase[sel];if(!c||!c.img){toast('Esta tarjeta aún no tiene dibujo');return}const z=fraseSize();libSave({...c,w:z.w,h:z.h})};
+$('edsave').onclick=()=>{const c=frase[sel];if(!c||!c.img){toast('Esta tarjeta aún no tiene picto');return}const z=fraseSize();libSave({...c,w:z.w,h:z.h})};
 
 /* ---------- Cámara ---------- */
 let camTarget='main',camStream=null,camFacing='environment';
@@ -960,7 +960,7 @@ function imgToData(img,max){const r=Math.min(1,max/Math.max(img.naturalWidth,img
   return c.toDataURL('image/jpeg',0.9)}
 async function libSave(c){
   if(!db){toast('Este navegador no permite guardar pictos (¿modo incógnito?)');return}
-  let data;try{data=imgToData(c.img,1200)}catch(e){toast('No se pudo guardar este dibujo');return}
+  let data;try{data=imgToData(c.img,1200)}catch(e){toast('No se pudo guardar este picto');return}
   const lab=(c.label||'').trim()||'SIN TEXTO',old=LIB.find(x=>norm(x.label)===norm(lab));
   const o={id:old?old.id:'p'+Date.now().toString(36)+Math.random().toString(36).slice(2,6),label:lab,color:c.color,pos:c.pos||'bottom',src:c.src,aid:c.src==='arasaac'?c.id:null,
     img:data,adj:c.src==='propia'&&c.adj?{...c.adj}:null,w:c.w||8,h:c.h||8,t:Date.now()};
