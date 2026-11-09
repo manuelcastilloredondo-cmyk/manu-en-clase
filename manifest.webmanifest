@@ -1,0 +1,16 @@
+{
+  "name": "Manu en clase",
+  "short_name": "Manu en clase",
+  "description": "Crea pictogramas, frases y juegos para el aula. Por Manolo Castillo Redondo.",
+  "lang": "es",
+  "start_url": "/",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#0e3d47",
+  "theme_color": "#121733",
+  "icons": [
+    {"src": "icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any"},
+    {"src": "icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable"}
+  ]
+}
