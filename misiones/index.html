@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Misiones de Mini-E · demo · Manu en clase</title>
+<meta name="description" content="Demo de una web de estudio en casa: idiomas con voz para repasar aunque los padres no sepamos pronunciar.">
+<link rel="icon" type="image/png" href="/favicon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,600;0,800;1,800&family=Barlow:wght@400;500;700&display=swap">
+<style>
+:root{--tinta:#1e4f5c;--coral:#fa6876;--sobre-coral:#12343d;--celeste:#a1d6e2;--azul:#4497b0;--hondo:#2a6f87;--nube:#eef7fa;--blanco:#fff;--bien:#1e7a4c;--bien-f:#dcf3e6;--mal:#b3261e;--mal-f:#ffe1de;--amarillo:#ffd23f;
+--en:#3a6df0;--de:#1d1d1d;--fr:#e2465a}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:var(--nube);color:var(--tinta);font:500 18px/1.45 Barlow,Arial,sans-serif;min-height:100vh}
+button{font:inherit;color:inherit;cursor:pointer}
+button:focus-visible{outline:4px solid var(--azul);outline-offset:3px}
+.wrap{max-width:760px;margin:0 auto;padding:18px 16px 40px;display:flex;flex-direction:column;gap:18px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px}
+.marca{font:600 14px 'Barlow Condensed',Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--hondo)}
+.chip{display:inline-flex;align-items:center;gap:6px;border:3px solid var(--tinta);border-radius:99px;padding:3px 12px;background:var(--blanco);font:800 18px 'Barlow Condensed',Arial,sans-serif;font-variant-numeric:tabular-nums}
+.chip.am{background:var(--amarillo)}
+.card{background:var(--blanco);border:3px solid var(--tinta);border-radius:22px;box-shadow:5px 5px 0 var(--tinta)}
+h1,h2{font-family:'Barlow Condensed',Arial,sans-serif;font-style:italic;font-weight:800;text-transform:uppercase;line-height:.92;margin:0}
+h1{font-size:clamp(54px,15vw,96px)}
+h1 span{color:var(--coral)}
+.sub{margin:6px 0 0;font-weight:700}
+.stats{display:flex;gap:10px;flex-wrap:wrap}
+.misiones{display:grid;gap:14px}
+.mision{display:grid;grid-template-columns:auto 1fr auto;gap:14px;align-items:center;padding:16px;text-align:left;width:100%}
+.mision .ic{width:64px;height:64px;border-radius:18px;border:3px solid var(--tinta);display:grid;place-items:center;font:800 28px 'Barlow Condensed',Arial,sans-serif;color:#fff;background:var(--c)}
+.mision h2{font-size:34px}
+.mision p{margin:2px 0 0;font-size:16px;color:var(--hondo);font-weight:700}
+.mision .go{font:800 22px 'Barlow Condensed',Arial,sans-serif;background:var(--coral);color:var(--sobre-coral);border:3px solid var(--tinta);border-radius:99px;padding:6px 14px}
+.mision:active,.op:active,.btn:active{transform:translate(4px,4px);box-shadow:1px 1px 0 var(--tinta)}
+.nota{font-size:15px;color:var(--hondo);margin:0}
+/* quiz */
+.qhead{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.tag{font:800 18px 'Barlow Condensed',Arial,sans-serif;color:#fff;background:var(--c);border:3px solid var(--tinta);border-radius:99px;padding:3px 14px;text-transform:uppercase}
+.dots{display:flex;gap:6px}
+.dots b{width:16px;height:16px;border-radius:50%;border:2px solid var(--tinta);background:var(--blanco)}
+.dots b.ok{background:var(--bien)}.dots b.ko{background:var(--mal)}.dots b.now{background:var(--amarillo);transform:scale(1.2)}
+.pal{padding:22px 18px;display:flex;flex-direction:column;gap:12px;align-items:flex-start;border-top:14px solid var(--c)}
+.pal .lbl{font:600 15px 'Barlow Condensed',Arial,sans-serif;letter-spacing:.14em;text-transform:uppercase;color:var(--hondo)}
+.fila{display:flex;align-items:center;gap:16px;flex-wrap:wrap;width:100%}
+.word{font:italic 800 clamp(48px,13vw,84px)/1 'Barlow Condensed',Arial,sans-serif;color:var(--c);overflow-wrap:anywhere;flex:1;min-width:0}
+.speak{width:78px;height:78px;border-radius:50%;border:3px solid var(--tinta);background:var(--amarillo);display:grid;place-items:center;box-shadow:4px 4px 0 var(--tinta);flex:none}
+.speak svg{width:38px;height:38px}
+.speak.on{animation:latido .8s ease-in-out 2}
+@keyframes latido{50%{transform:scale(1.12)}}
+.ej{margin:0;font-style:italic;font-weight:500;color:var(--hondo);cursor:pointer;text-decoration:underline dotted 2px;text-underline-offset:5px}
+.preg{font-weight:700;margin:0}
+.ops{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.op{min-height:64px;padding:12px;border:3px solid var(--tinta);border-radius:16px;background:var(--blanco);font-weight:700;font-size:20px;box-shadow:4px 4px 0 var(--tinta)}
+.op.bien{background:var(--bien);color:#fff}
+.op.mal{background:var(--mal-f);color:var(--mal)}
+.op:disabled{cursor:default}
+.fb{padding:12px 16px;border:3px solid var(--tinta);border-radius:16px;font-weight:700;margin:0}
+.fb.bien{background:var(--bien-f);color:var(--bien)}.fb.mal{background:var(--mal-f);color:var(--mal)}
+.btn{align-self:flex-start;font:800 22px 'Barlow Condensed',Arial,sans-serif;text-transform:uppercase;background:var(--coral);color:var(--sobre-coral);border:3px solid var(--tinta);border-radius:99px;padding:10px 24px;box-shadow:4px 4px 0 var(--tinta)}
+.btn.claro{background:var(--blanco);color:var(--tinta)}
+.fin{padding:26px 18px;text-align:center;display:flex;flex-direction:column;align-items:center;gap:12px}
+.estrellas{display:flex;gap:8px}
+.estrellas svg{width:58px;height:58px}
+.big{font:italic 800 clamp(60px,16vw,100px)/1 'Barlow Condensed',Arial,sans-serif;color:var(--coral)}
+footer{font-size:14px;color:var(--hondo);text-align:center}
+footer a{color:var(--tinta)}
+@media (max-width:420px){.ops{grid-template-columns:1fr}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important}}
+</style>
+</head>
+<body>
+<div class="wrap" id="app"></div>
+<script>
+const MISIONES = {
+  en: { nombre:'Inglés', corto:'EN', color:'var(--en)', voz:'en-GB', tema:'Palabras que cuesta pronunciar', items:[
+    ['thought','pensamiento',['pensamiento','grueso','a través','tos'],'I had a funny thought.'],
+    ['through','a través de',['a través de','pensamiento','lanzar','árbol'],'We walk through the park.'],
+    ['kitchen','cocina',['cocina','pollo','gatito','cuchillo'],'Mum is in the kitchen.'],
+    ['knife','cuchillo',['cuchillo','rodilla','noche','saber'],'Cut the bread with a knife.'],
+    ['Wednesday','miércoles',['miércoles','martes','jueves','domingo'],'We have English on Wednesday.'],
+    ['island','isla',['isla','tierra','hielo','iglesia'],'Lanzarote is an island.'],
+    ['laugh','reírse',['reírse','llorar','lavar','aprender'],'My friends always laugh.'],
+    ['weather','el tiempo',['el tiempo','plumas','juntos','si'],'The weather is sunny today.']]},
+  de: { nombre:'Alemán', corto:'DE', color:'var(--de)', voz:'de-DE', tema:'Vocabulario de fútbol', items:[
+    ['der Ball','el balón',['el balón','la portería','el campo','el árbitro'],'Der Ball ist rund.'],
+    ['das Tor','la portería y el gol',['la portería y el gol','el banquillo','el estadio','el equipo'],'Das war ein schönes Tor!'],
+    ['der Torwart','el portero',['el portero','el delantero','el entrenador','el capitán'],'Der Torwart hält den Ball.'],
+    ['die Mannschaft','el equipo',['el equipo','la camiseta','el partido','la liga'],'Unsere Mannschaft gewinnt.'],
+    ['das Spiel','el partido',['el partido','el juego de cartas','el campo','el gol'],'Das Spiel beginnt um drei Uhr.'],
+    ['der Schiedsrichter','el árbitro',['el árbitro','el portero','el aficionado','el defensa'],'Der Schiedsrichter pfeift.'],
+    ['gewinnen','ganar',['ganar','perder','jugar','correr'],'Wir wollen heute gewinnen.'],
+    ['die Ecke','el córner',['el córner','el penalti','la falta','el banquillo'],'Es gibt eine Ecke.']]},
+  fr: { nombre:'Francés', corto:'FR', color:'var(--fr)', voz:'fr-FR', tema:'Mi día', items:[
+    ['aujourd’hui','hoy',['hoy','mañana','ayer','siempre'],'Aujourd’hui, il fait beau.'],
+    ['le petit-déjeuner','el desayuno',['el desayuno','la cena','el almuerzo','la merienda'],'Je prends le petit-déjeuner.'],
+    ['l’école','el colegio',['el colegio','la escalera','la casa','el parque'],'Je vais à l’école à pied.'],
+    ['le cahier','el cuaderno',['el cuaderno','la mochila','el libro','el lápiz'],'Ouvre ton cahier, s’il te plaît.'],
+    ['la fenêtre','la ventana',['la ventana','la puerta','la fiesta','el techo'],'Ferme la fenêtre.'],
+    ['l’oiseau','el pájaro',['el pájaro','el pez','la oveja','el oso'],'L’oiseau chante le matin.'],
+    ['la grenouille','la rana',['la rana','la granja','la tortuga','el grano'],'La grenouille saute dans l’eau.'],
+    ['merci beaucoup','muchas gracias',['muchas gracias','de nada','por favor','hasta luego'],'Merci beaucoup, madame !']]}
+};
+const ALTAVOZ='<svg viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M4 9.5h3.5L12 5.5v13l-4.5-4H4z" fill="#1e4f5c"/><path d="M15.5 8.5a5 5 0 010 7M18 6a8.5 8.5 0 010 12" stroke="#1e4f5c" stroke-width="2.2" stroke-linecap="round"/></svg>';
+const ESTRELLA=on=>`<svg viewBox="0 0 24 24"><path d="M12 2.5l2.9 6.2 6.6.7-5 4.5 1.4 6.6L12 17.2l-5.9 3.3 1.4-6.6-5-4.5 6.6-.7z" fill="${on?'#ffd23f':'#eef7fa'}" stroke="#1e4f5c" stroke-width="1.8" stroke-linejoin="round"/></svg>`;
+const KEY='misiones-minie-demo';
+const leer=()=>{try{return JSON.parse(localStorage.getItem(KEY))||{puntos:0,racha:0}}catch(e){return{puntos:0,racha:0}}};
+const guardar=s=>{try{localStorage.setItem(KEY,JSON.stringify(s))}catch(e){}};
+let S=leer();
+const app=document.getElementById('app');
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const barajar=a=>{a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a};
+function decir(t,lang){try{if(!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang=lang;u.rate=.8;
+ const v=speechSynthesis.getVoices().find(v=>v.lang.replace('_','-').toLowerCase().startsWith(lang.slice(0,2)));if(v)u.voice=v;speechSynthesis.speak(u)}catch(e){}}
+let AC=null;function sonido(ok){try{AC=AC||new(window.AudioContext||window.webkitAudioContext)();const t=AC.currentTime;(ok?[659,880]:[330,262]).forEach((f,i)=>{const o=AC.createOscillator(),g=AC.createGain();o.frequency.value=f;o.type='triangle';g.gain.setValueAtTime(0,t+i*.1);g.gain.linearRampToValueAtTime(.1,t+i*.1+.02);g.gain.exponentialRampToValueAtTime(.001,t+i*.1+.3);o.connect(g);g.connect(AC.destination);o.start(t+i*.1);o.stop(t+i*.1+.35)})}catch(e){}}
+
+function inicio(){
+  app.innerHTML=`<div class="top"><span class="marca">Misiones · demo</span><div class="stats"><span class="chip am" id="pts">${S.puntos} puntos</span></div></div>
+  <header><h1>¡Hola, <span>Mini-E</span>!</h1><p class="sub">Elige tu misión de hoy. Toca el altavoz para escuchar cada palabra.</p></header>
+  <div class="misiones">${Object.entries(MISIONES).map(([k,m])=>`<button class="card mision" style="--c:${m.color}" data-k="${k}"><span class="ic">${m.corto}</span><span><h2>${m.nombre}</h2><p>${m.tema} · 8 palabras</p></span><span class="go">Jugar</span></button>`).join('')}</div>
+  <p class="nota">Las palabras se escuchan con la voz del móvil o de la tablet, así que suenan un poco distinto según el aparato.</p>
+  <footer><p>Demo de ejemplo: Mini-E es un nombre inventado y las preguntas no son de ningún libro.<br>Hecha por <a href="/">Manu en clase</a> · <a href="https://www.instagram.com/manuenclase/" rel="noopener">@manuenclase</a></p></footer>`;
+  app.querySelectorAll('.mision').forEach(b=>b.onclick=()=>jugar(b.dataset.k));
+}
+let Q=null;
+function jugar(k){const m=MISIONES[k];const fijo=location.search.includes('fijo');Q={k,m,orden:fijo?[...m.items]:barajar(m.items),i:0,res:[],aciertos:0};pregunta();}
+function pregunta(){
+  const {m,orden,i}=Q;const [w,ok,ops,ej]=orden[i];
+  app.innerHTML=`<div class="qhead"><span class="tag" style="--c:${m.color}">${m.nombre}</span><div class="dots">${orden.map((_,j)=>`<b class="${Q.res[j]===true?'ok':Q.res[j]===false?'ko':j===i?'now':''}"></b>`).join('')}</div><span class="chip am">${S.puntos} puntos</span></div>
+  <section class="card pal" style="--c:${m.color}"><span class="lbl">Escucha y elige · ${i+1} de ${orden.length}</span>
+   <div class="fila"><span class="word">${esc(w)}</span><button class="speak" id="hablar" aria-label="Escuchar la palabra">${ALTAVOZ}</button></div>
+   <p class="ej" id="ej" title="Toca para escuchar la frase">${esc(ej)}</p>
+   <p class="preg">¿Qué significa?</p>
+   <div class="ops" style="width:100%">${barajar(ops).map(o=>`<button class="op" data-o="${esc(o)}">${esc(o)}</button>`).join('')}</div>
+   <div id="fb" style="width:100%"></div></section>`;
+  const hablar=()=>{const b=document.getElementById('hablar');b.classList.remove('on');void b.offsetWidth;b.classList.add('on');decir(w,m.voz)};
+  document.getElementById('hablar').onclick=hablar;document.getElementById('ej').onclick=()=>decir(ej,m.voz);
+  setTimeout(hablar,350);
+  let fallos=0;
+  app.querySelectorAll('.op').forEach(b=>b.onclick=()=>{
+    if(b.dataset.o===ok){b.classList.add('bien');app.querySelectorAll('.op').forEach(x=>x.disabled=true);sonido(true);
+      const primera=fallos===0;Q.res[i]=primera;if(primera){Q.aciertos++;S.puntos+=10;guardar(S)}
+      document.getElementById('fb').innerHTML=`<p class="fb bien">${primera?'¡Muy bien! +10 puntos':'¡Eso es! A la próxima, a la primera.'}</p><button class="btn" id="sig" style="margin-top:12px">${i+1<Q.orden.length?'Siguiente':'Ver resultado'}</button>`;
+      document.getElementById('sig').onclick=()=>{Q.i++;Q.i<Q.orden.length?pregunta():final()};
+    }else{fallos++;b.classList.add('mal');b.disabled=true;sonido(false);
+      document.getElementById('fb').innerHTML='<p class="fb mal">Casi. Escúchala otra vez y prueba de nuevo.</p>';setTimeout(hablar,300)}
+  });
+}
+function final(){
+  const n=Q.orden.length,a=Q.aciertos,est=a>=n?3:a>=n*.6?2:a>0?1:0;
+  app.innerHTML=`<section class="card fin"><span class="tag" style="--c:${Q.m.color}">${Q.m.nombre}</span><div class="big">${a}/${n}</div>
+  <div class="estrellas">${[1,2,3].map(x=>ESTRELLA(x<=est)).join('')}</div>
+  <p class="sub">${est===3?'¡Misión perfecta, Mini-E!':est>=2?'¡Muy buena misión!':'Cada intento cuenta. ¡Otra vez y sale!'}</p>
+  <div class="fila" style="justify-content:center"><button class="btn" id="otra">Otra vez</button><button class="btn claro" id="casa">Inicio</button></div></section>`;
+  document.getElementById('otra').onclick=()=>jugar(Q.k);document.getElementById('casa').onclick=inicio;
+}
+inicio();
+</script>
+</body>
+</html>
