@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Medios de transporte · Clasifica · Manu en clase</title>
+<meta name="description" content="Juego de clasificación por color o tipo de medios de transporte. Manu en clase.">
+<link rel="icon" type="image/png" href="../favicon.png">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@1,800&family=Barlow:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#1f3a44;--azul:#4497b0;--azul-hondo:#2d6f85;--coral:#fa6876;--sobre-coral:#3a1417;--celeste:#d4eff7;--nube:#f3fafc;--line:#cfe3ea;--r-sm:8px;--r-md:14px;--r-lg:22px}
+*{box-sizing:border-box}
+body{margin:0;font-family:Barlow,system-ui,sans-serif;color:var(--ink);background:#fff;min-height:100vh;-webkit-tap-highlight-color:transparent}
+header{background:var(--celeste);padding:18px 16px 14px;text-align:center}
+.kicker{font-weight:600;letter-spacing:.14em;font-size:13px;color:var(--azul-hondo);text-transform:uppercase}
+h1{font-family:"Barlow Condensed",sans-serif;font-style:italic;font-weight:800;text-transform:uppercase;font-size:clamp(34px,7vw,50px);line-height:.9;margin:6px 0 4px}
+h1 span{color:var(--coral)}
+header p{margin:0;font-size:18px}
+.tools{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;align-items:center;padding:12px 16px;border-bottom:1px solid var(--line)}
+.seg{display:inline-flex;border:2px solid var(--azul);border-radius:var(--r-sm);overflow:hidden}
+.seg button{border:0;background:#fff;color:var(--azul-hondo);font:inherit;font-weight:700;font-size:16px;min-height:48px;padding:0 14px;cursor:pointer}
+.seg button+button{border-left:2px solid var(--azul)}
+.seg button[aria-pressed="true"]{background:var(--azul);color:#fff}
+.btn{font:inherit;font-weight:700;font-size:16px;min-height:48px;padding:0 16px;border-radius:var(--r-sm);border:2px solid var(--azul);background:#fff;color:var(--azul-hondo);cursor:pointer}
+.btn[aria-pressed="true"]{background:var(--azul);color:#fff}
+.btn.primary{background:var(--coral);border-color:var(--coral);color:var(--sobre-coral)}
+main{max-width:900px;margin:0 auto;padding:14px 16px 28px}
+#count{font-size:22px;font-weight:700;text-align:center;margin:4px 0 0}
+#msg{font-size:18px;text-align:center;min-height:26px;margin:4px 0 10px;color:var(--azul-hondo)}
+#bins{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px}
+.bin{font:inherit;color:inherit;background:#fff;border:3px solid var(--line);border-radius:var(--r-md);padding:10px 8px;min-height:150px;display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;transition:transform .15s,border-color .15s}
+.bin.over{transform:scale(1.04);border-color:var(--azul)}
+.bin.hint{border-color:var(--coral);box-shadow:0 0 0 5px rgba(250,104,118,.35);animation:pulse 1s ease-in-out infinite}
+.bin-head{display:flex;flex-direction:column;align-items:center;gap:6px;font-weight:700;font-size:19px}
+.sw{display:block;width:60px;height:38px;border-radius:10px;border:2px solid rgba(31,58,68,.15)}
+.ico{display:block;width:64px;height:45px}
+.ico img{width:100%;height:100%;object-fit:contain;display:block}
+.disc{position:relative;display:grid;place-items:center;width:100%;height:100%}
+.disc::before{content:"";position:absolute;width:64%;aspect-ratio:1;border-radius:50%;background:var(--c);box-shadow:inset 0 0 0 2px rgba(31,58,68,.12)}
+.disc img{position:relative;width:72%;height:72%;object-fit:contain}
+.chip .disc img{width:70%;height:70%}
+.bin-body{display:flex;flex-wrap:wrap;justify-content:center;gap:4px;min-height:44px}
+.chip{width:42px;height:42px;animation:pop .35s ease-out}
+#tray{margin-top:14px;background:var(--nube);border-radius:var(--r-lg);padding:14px;display:flex;flex-wrap:wrap;gap:12px;justify-content:center;min-height:140px}
+.piece{width:90px;height:72px;padding:6px;background:#fff;border:2px solid var(--line);border-radius:var(--r-md);cursor:grab;touch-action:none;user-select:none;-webkit-user-select:none;box-shadow:0 2px 0 rgba(31,58,68,.08);transition:transform .15s}
+.piece{pointer-events:auto}
+.piece img{pointer-events:none}
+.piece.sel{border-color:var(--coral);box-shadow:0 0 0 4px rgba(250,104,118,.3);transform:translateY(-3px)}
+.piece.drag{opacity:.35}
+.piece.shake{animation:shake .4s}
+.ghost{position:fixed;width:96px;height:76px;padding:6px;background:#fff;border:2px solid var(--coral);border-radius:var(--r-md);pointer-events:none;z-index:50;transform:translate(-50%,-50%);box-shadow:0 8px 14px rgba(31,58,68,.25)}
+.ghost .disc{height:100%}
+.note{text-align:center;font-size:16px;color:#4b6670;margin:12px 0 0}
+footer{text-align:center;font-size:14px;color:#4b6670;padding:0 16px 22px}
+#fin{position:fixed;inset:0;background:rgba(255,255,255,.96);display:flex;align-items:center;justify-content:center;padding:20px;z-index:60}
+#fin[hidden],#ghost[hidden]{display:none}
+.fin-card{text-align:center;max-width:440px;background:var(--celeste);border-radius:var(--r-lg);padding:26px 22px}
+.fin-card h2{font-family:"Barlow Condensed",sans-serif;font-style:italic;font-weight:800;text-transform:uppercase;font-size:40px;line-height:.95;margin:0 0 10px}
+.fin-card p{font-size:19px;margin:0 0 18px}
+.fin-card .row{display:flex;flex-wrap:wrap;gap:10px;justify-content:center}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-7px)}40%{transform:translateX(7px)}60%{transform:translateX(-5px)}80%{transform:translateX(4px)}}
+@keyframes pop{0%{transform:scale(.3);opacity:0}70%{transform:scale(1.12);opacity:1}100%{transform:scale(1)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.04)}}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header>
+  <a class="kicker" href="../" style="color:var(--azul-hondo);text-decoration:none">← Manu en clase · Pedagogía terapéutica</a>
+  <h1>Medios de <span>transporte</span></h1>
+  <p>Clasifica cada vehículo por color o por tipo.</p>
+</header>
+
+<div class="tools">
+  <div class="seg" role="group" aria-label="Criterio de clasificación">
+    <button data-mode="color" aria-pressed="true">Por color</button>
+    <button data-mode="type" aria-pressed="false">Por tipo</button>
+  </div>
+  <div class="seg" role="group" aria-label="Número de grupos">
+    <button data-n="3" aria-pressed="true">3 grupos</button>
+    <button data-n="6" aria-pressed="false">6 grupos</button>
+  </div>
+  <button class="btn" id="btnHelp" aria-pressed="true">Pistas: sí</button>
+  <button class="btn" id="btnVoice" aria-pressed="false">Voz: no</button>
+  <button class="btn" id="btnNew">Nueva ronda</button>
+</div>
+
+<main>
+  <p id="count" aria-live="polite"></p>
+  <p id="msg" aria-live="polite"></p>
+  <section id="bins" aria-label="Grupos"></section>
+  <section id="tray" aria-label="Piezas por clasificar"></section>
+  <p class="note">Toca una pieza y después el grupo donde va, o arrástrala hasta él.</p>
+</main>
+
+<footer>manuenclase.com · Ilustraciones: Noto Emoji © Google, licencia Apache 2.0 (<a href="https://github.com/googlefonts/noto-emoji" target="_blank" rel="noopener">repositorio</a>)</footer>
+
+<div id="fin" hidden>
+  <div class="fin-card">
+    <h2>¡Lo has conseguido!</h2>
+    <p id="finText"></p>
+    <div class="row">
+      <button class="btn primary" id="again">Jugar otra vez</button>
+      <button class="btn" id="other">Cambiar criterio</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const COLORS = [
+  {id:'azul',name:'Azul',hex:'#2f6fd6'},
+  {id:'morado',name:'Morado',hex:'#8e4fc7'},
+  {id:'amarillo',name:'Amarillo',hex:'#f2c12e'},
+  {id:'verde',name:'Verde',hex:'#18a48a'},
+  {id:'rojo',name:'Rojo',hex:'#e0373a'},
+  {id:'naranja',name:'Naranja',hex:'#f58a3a'}
+];
+const TYPES = [
+  {id:'avion',name:'Avión'},
+  {id:'helicoptero',name:'Helicóptero'},
+  {id:'barco',name:'Barco'},
+  {id:'tren',name:'Tren'},
+  {id:'coche',name:'Coche'},
+  {id:'autobus',name:'Autobús'}
+];
+const colorOf = id => COLORS.find(c => c.id === id);
+const typeOf  = id => TYPES.find(t => t.id === id);
+
+const TYPE_FILE = {avion:'u2708.svg', helicoptero:'u1f681.svg', barco:'u1f6a2.svg', tren:'u1f682.svg', coche:'u1f697.svg', autobus:'u1f68c.svg'};
+function vehImg(t){ return `<img src="img/${TYPE_FILE[t]}" alt="" draggable="false">`; }
+
+const $ = s => document.querySelector(s);
+let S = {mode:'color', n:3, cats:[], pieces:[], placed:0, total:0, errors:{}, sel:null, help:true, voice:false};
+let drag = null, ghost = null;
+
+function shuffle(a){
+  for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; }
+  return a;
+}
+function catList(){ return S.mode === 'color' ? COLORS : TYPES; }
+function catName(id){ return (S.mode === 'color' ? colorOf(id) : typeOf(id)).name; }
+function pieceName(p){ return `${typeOf(p.type).name} ${colorOf(p.color).name.toLowerCase()}`; }
+function pieceSVG(p){ return `<span class="disc" style="--c:${colorOf(p.color).hex}">${vehImg(p.type)}</span>`; }
+
+function newGame(){
+  const pool = catList();
+  const chosen = shuffle(pool.slice()).slice(0, S.n);
+  S.cats = pool.filter(x => chosen.includes(x));           // mantiene el orden de la paleta
+  const other = S.mode === 'color' ? TYPES : COLORS;
+  const pieces = [];
+  let bag = [], id = 0;
+  S.cats.forEach(c => {
+    for (let k = 0; k < 3; k++) {
+      if (!bag.length) bag = shuffle(other.slice());
+      const o = bag.pop().id;
+      pieces.push(S.mode === 'color'
+        ? {id: id++, cat: c.id, color: c.id, type: o}
+        : {id: id++, cat: c.id, type: c.id, color: o});
+    }
+  });
+  S.pieces = shuffle(pieces);
+  S.placed = 0; S.total = pieces.length; S.errors = {}; S.sel = null;
+  $('#msg').textContent = '';
+  $('#fin').hidden = true;
+  render();
+  say(S.mode === 'color' ? 'Clasifica por color' : 'Clasifica por tipo');
+}
+
+function render(){
+  $('#bins').innerHTML = S.cats.map(c => {
+    const head = S.mode === 'color'
+      ? `<span class="sw" style="background:${c.hex}"></span>`
+      : `<span class="ico">${vehImg(c.id)}</span>`;
+    return `<button class="bin" data-cat="${c.id}" aria-label="Grupo ${catName(c.id)}">
+              <span class="bin-head">${head}<span>${catName(c.id)}</span></span>
+              <span class="bin-body"></span></button>`;
+  }).join('');
+  S.pieces.filter(p => p.done).forEach(p => {
+    const body = document.querySelector(`.bin[data-cat="${p.cat}"] .bin-body`);
+    if (body) body.insertAdjacentHTML('beforeend', `<span class="chip">${pieceSVG(p)}</span>`);
+  });
+  $('#tray').innerHTML = S.pieces.filter(p => !p.done).map(p =>
+    `<button class="piece${S.sel === p.id ? ' sel' : ''}" data-id="${p.id}" aria-label="${pieceName(p)}">${pieceSVG(p)}</button>`
+  ).join('');
+  $('#count').textContent = `Quedan ${S.total - S.placed} de ${S.total}`;
+  sync();
+}
+
+function sync(){
+  document.querySelectorAll('[data-mode]').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.mode === S.mode)));
+  document.querySelectorAll('[data-n]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.n) === S.n)));
+  $('#btnHelp').setAttribute('aria-pressed', String(S.help));
+  $('#btnHelp').textContent = S.help ? 'Pistas: sí' : 'Pistas: no';
+  $('#btnVoice').setAttribute('aria-pressed', String(S.voice));
+  $('#btnVoice').textContent = S.voice ? 'Voz: sí' : 'Voz: no';
+}
+
+function msg(t){ $('#msg').textContent = t; }
+function say(t){
+  if (!S.voice || !('speechSynthesis' in window)) return;
+  try {
+    speechSynthesis.cancel();
+    const u = new SpeechSynthesisUtterance(t);
+    u.lang = 'es-ES';
+    speechSynthesis.speak(u);
+  } catch (e) {}
+}
+
+function select(id){
+  S.sel = (S.sel === id) ? null : id;
+  render();
+  msg(S.sel !== null ? 'Ahora toca el grupo donde va.' : '');
+}
+
+function tryPlace(id, cat){
+  const p = S.pieces.find(x => x.id === id);
+  if (!p || p.done) return;
+  S.sel = null;
+  if (p.cat === cat) {
+    p.done = true; S.placed++;
+    const t = '¡Muy bien!';
+    msg(t); say(t);
+    render();
+    if (S.placed === S.total) finish();
+  } else {
+    S.errors[id] = (S.errors[id] || 0) + 1;
+    const t = S.mode === 'color' ? 'Casi. Mira bien de qué color es.' : 'Casi. Mira bien qué vehículo es.';
+    msg(t); say(t);
+    render();
+    const el = document.querySelector(`.piece[data-id="${id}"]`);
+    if (el) el.classList.add('shake');
+    if (S.help && S.errors[id] >= 2) {
+      const b = document.querySelector(`.bin[data-cat="${p.cat}"]`);
+      if (b) {
+        b.classList.add('hint');
+        msg('Mira el grupo que se ilumina.');
+        setTimeout(() => b.classList.remove('hint'), 2200);
+      }
+    }
+  }
+}
+
+function finish(){
+  const errs = Object.values(S.errors).reduce((a, b) => a + b, 0);
+  $('#finText').textContent = `Has clasificado ${S.total} piezas ` +
+    (errs === 0 ? 'sin fallar ninguna.' : `con ${errs} ${errs === 1 ? 'intento fallido' : 'intentos fallidos'}.`);
+  const t = '¡Lo has conseguido!';
+  say(t);
+  $('#fin').hidden = false;
+}
+
+// ---- Toque y arrastre ----
+function binAt(x, y){
+  const el = document.elementFromPoint(x, y);
+  return el ? el.closest('.bin') : null;
+}
+function markOver(x, y){
+  document.querySelectorAll('.bin.over').forEach(b => b.classList.remove('over'));
+  const b = binAt(x, y);
+  if (b) b.classList.add('over');
+}
+function makeGhost(id){
+  const p = S.pieces.find(x => x.id === id);
+  ghost = document.createElement('div');
+  ghost.className = 'ghost';
+  ghost.innerHTML = pieceSVG(p);
+  document.body.appendChild(ghost);
+}
+function onDown(e){
+  const el = e.target.closest('.piece');
+  if (!el) return;
+  e.preventDefault();
+  drag = {id: Number(el.dataset.id), x0: e.clientX, y0: e.clientY, moved: false, el};
+  document.addEventListener('pointermove', onMove);
+  document.addEventListener('pointerup', onUp);
+}
+function onMove(e){
+  if (!drag) return;
+  if (!drag.moved && Math.hypot(e.clientX - drag.x0, e.clientY - drag.y0) > 10) {
+    drag.moved = true;
+    makeGhost(drag.id);
+    drag.el.classList.add('drag');
+  }
+  if (drag.moved && ghost) {
+    ghost.style.left = e.clientX + 'px';
+    ghost.style.top = e.clientY + 'px';
+    markOver(e.clientX, e.clientY);
+  }
+}
+function onUp(e){
+  document.removeEventListener('pointermove', onMove);
+  document.removeEventListener('pointerup', onUp);
+  if (!drag) return;
+  const d = drag; drag = null;
+  if (ghost) { ghost.remove(); ghost = null; }
+  d.el.classList.remove('drag');
+  markOver(-1, -1);
+  if (!d.moved) { select(d.id); return; }
+  const bin = binAt(e.clientX, e.clientY);
+  if (bin) tryPlace(d.id, bin.dataset.cat);
+  else msg('Suelta la pieza sobre un grupo.');
+}
+
+$('#tray').addEventListener('pointerdown', onDown);
+$('#bins').addEventListener('click', e => {
+  const bin = e.target.closest('.bin');
+  if (!bin) return;
+  if (S.sel === null) { msg('Primero toca una pieza.'); return; }
+  tryPlace(S.sel, bin.dataset.cat);
+});
+
+// ---- Controles ----
+document.querySelectorAll('[data-mode]').forEach(b => b.addEventListener('click', () => {
+  S.mode = b.dataset.mode; newGame();
+}));
+document.querySelectorAll('[data-n]').forEach(b => b.addEventListener('click', () => {
+  S.n = Number(b.dataset.n); newGame();
+}));
+$('#btnHelp').addEventListener('click', () => { S.help = !S.help; sync(); });
+$('#btnVoice').addEventListener('click', () => { S.voice = !S.voice; sync(); say('Voz activada'); });
+$('#btnNew').addEventListener('click', newGame);
+$('#again').addEventListener('click', newGame);
+$('#other').addEventListener('click', () => {
+  S.mode = S.mode === 'color' ? 'type' : 'color';
+  newGame();
+});
+
+newGame();
+</script>
+</body>
+</html>
